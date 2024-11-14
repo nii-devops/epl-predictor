@@ -1,0 +1,42 @@
+
+{% extends 'base.html' %}
+
+
+{% from 'bootstrap5/form.html' import render_form %}
+
+
+{% block title %}
+    {{ title }}
+{% endblock title %}
+
+
+
+
+
+{% block content %}
+
+<div class="container d-flex justify-content-center align-items-center" style="min-height: 100vh; padding-top: 5rem; padding-bottom: 5rem; ">
+    <div style="width: 1200px; padding-left: 50px; padding-right: 50px;" class="login-container shadow-lg  rounded-3">
+        
+        
+        <div style="width: 500px;">
+
+            <!-- Login Header -->
+            <div class="form-header text-center mb-3 mt-5">
+                <h4 class="mb-0 mt-3">Drop Database Table</h4>
+            </div>
+
+            <hr>
+
+            <!-- Login Form -->
+            <div class="generic-form pt-1">
+                <div class="mt-3 mb-5 form-control">
+                    {{ render_form(form) }}
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+{% endblock content %}

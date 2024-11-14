@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+{% from 'bootstrap5/form.html' import render_form %}
+
+{% block title %}
+    {{ title }}
+{% endblock title %}
+
+{% block content %}
+
+<div class="container d-flex justify-content-center align-items-center" style="min-height: 100vh; padding-top: 5rem; padding-bottom: 5rem; ">
+    <div style="width: 500px; padding-left: 50px; padding-right: 50px;" class="login-container shadow-lg  rounded-3">
+        
+        <!-- Login Header -->
+        <div class="login-header text-center mb-5 mt-5">
+            <h4 class="mb-0 mt-3">Enter Nickname</h4>
+        </div>
+
+        <hr class="mb-5">
+
+        <!-- Login Form -->
+        <div class="login-form">
+            <!-- Email Login Form -->
+            <div class="mb-3 form-control">
+                {{ render_form(form) }}
+            </div>
+
+        </div>
+    </div>
+</div>
+
+{% endblock content %}

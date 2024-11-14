@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+
+{% block title %}
+    {{ title }}
+{% endblock title %}
+
+{% block content %}
+
+<!-- Hero Section -->
+<section class="hero-section hero-background d-flex align-items-center text-white" id="home">
+    
+    <div class="container">
+        <div class="hero-content text-center pb-5 pt-5 rounded-5">
+            <h1 class="hero-title">Pundits EPL Prediction Game</h1>
+            <p class="lead mb-4">Connect with colleague pundits and challenge them to the trophy</p>
+            <a href="{{ url_for('login') }}" class="btn btn-primary custom-btn me-3">Get Started</a>
+        </div>
+    </div>
+    
+</section>
+
+
+{% endblock content %}

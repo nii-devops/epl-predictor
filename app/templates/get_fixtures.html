@@ -1,0 +1,74 @@
+
+{% extends 'base.html' %}
+
+
+{% from 'bootstrap5/form.html' import render_form %}
+
+
+{% block title %}
+    {{ title }}
+{% endblock title %}
+
+
+
+
+
+{% block content %}
+
+<div class="container d-flex justify-content-center align-items-center" style="min-height: 100vh; padding-top: 5rem; padding-bottom: 5rem; ">
+    <div style="width: 500px; padding-left: 50px; padding-right: 50px;" class="login-container shadow-lg  rounded-3">
+        
+        {% if form %}
+        <div style="width: 500px;">
+            <!-- Login Header -->
+            <div class="form-header text-center mb-3 mt-5">
+                <h4 class="mb-0 mt-3">Select Match Week</h4>
+            </div>
+
+            <!-- Login Form -->
+            <div class="generic-form pt-1">
+                <div class="mt-3 mb-5 form-control">
+                    {{ render_form(form) }}
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
+
+
+
+        {% if matches %}
+
+        <!-- Login Header -->
+        <div class="form-header text-center mb-3 mt-5">
+            <h4 class="mb-0 mt-3">Week {{ week }} Fixtures</h4>
+        </div>
+
+        <div>
+            <table class="table table-striped">
+                <thead class="table-dark">
+                  <tr>
+                    <th scope="col">Match #</th>
+                    <th scope="col">Fixture</th>
+                  </tr>
+                </thead>
+
+                <tbody>
+                {% for match in matches %}
+                  <tr>
+                    <th scope="row"> Match {{ loop.index }}</th>
+                    <td>{{ match }}</td>
+                  </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        <hr class="mb-3">
+
+        {% endif %}
+
+
+    </div>
+</div>
+
+{% endblock content %}

@@ -1,0 +1,45 @@
+{% extends 'base.html' %}
+{% from 'bootstrap5/form.html' import render_form %}
+
+{% block title %}
+    {{ title }}
+{% endblock title %}
+
+{% block content %}
+
+<div class="container d-flex justify-content-center align-items-center" style="min-height: 100vh; padding-top: 5rem; padding-bottom: 5rem; ">
+    <div style="width: 500px; padding-left: 50px; padding-right: 50px;" class="login-container shadow-lg  rounded-3">
+        <!-- Login Header -->
+        <div class="login-header text-center mb-5 mt-5">
+            <h4 class="mb-0 mt-3">Login</h4>
+        </div>
+        <hr>
+
+        <!-- Login Form -->
+        <div class="login-form">
+            <!-- Social Login -->
+            <div  class="social-login mb-4 pt-3 d-flex justify-content-center">
+                <a href="{{ url_for('google_login') }}" class="social-icon-border"><i class="fab fa-google"></i></a>
+            </div>
+
+            <div class="divider text-center my-3">
+                <span>or continue with email</span>
+            </div>
+
+            <!-- Email Login Form -->
+            <div class="mb-3 form-control">
+                {{ render_form(form) }}
+            </div>
+            <hr>
+
+            <!-- Login Footer -->
+            <div class="login-footer text-center">
+                <p class="mb-3 mt-3">
+                    Don't have an account? <a href="{{ url_for('register') }}">Sign Up</a>
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock content %}

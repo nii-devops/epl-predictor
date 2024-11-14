@@ -1,0 +1,85 @@
+
+{% extends 'base.html' %}
+
+
+{% from 'bootstrap5/form.html' import render_form %}
+
+
+{% block title %}
+    {{ title }}
+{% endblock title %}
+
+
+
+
+
+{% block content %}
+
+<div class="container d-flex justify-content-center align-items-center" style="min-height: 100vh; padding-top: 5rem; padding-bottom: 5rem; ">
+    <div style="width: 1200px; padding-left: 50px; padding-right: 50px;" class="login-container shadow-lg  rounded-3">
+        
+        
+        {% if form %}
+        <div style="width: 500px;">
+
+            <!-- Login Header -->
+            <div class="form-header text-center mb-3 mt-5">
+                <h4 class="mb-0 mt-3">Enter User Email</h4>
+            </div>
+
+            <!-- Login Form -->
+            <div class="generic-form pt-1">
+                <div class="mt-3 mb-5 form-control">
+                    {{ render_form(form) }}
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
+
+        
+
+        {% if matches %}
+
+        <!-- Login Header -->
+        <div class="form-header text-center mb-3 mt-5">
+            <h4 class="mb-0 mt-3">User Predictions</h4>
+        </div>
+
+        <table class="table table-striped">
+            <thead class="table-dark">
+              <tr>
+                <th scope="col">Match #</th>
+                <th scope="col">Home Team</th>
+                <th scope="col">Score</th>
+                <th scope="col"> VS </th>
+                <th scope="col">Score</th>
+                <th scope="col">Away Team</th>
+              </tr>
+            </thead>
+
+            <tbody>
+                {% for match, teams in matches.items() %}
+                <tr>
+                    <th scope="row">{{ match }}</th>
+                    <!-- Convert dictionary values to a set to access the inner/nested items -->
+                    {% set teams_list = teams.items() | list %}
+                        <td>{{ teams_list[0][0] }}</td> <!-- Home Team Name -->
+                        <td>{{ teams_list[0][1] }}</td> <!-- Home Team Score -->
+                        <td> -- </td>
+                        <td>{{ teams_list[1][1] }}</td> <!-- Away Team Score -->
+                        <td>{{ teams_list[1][0] }}</td> <!-- Away Team Name -->
+                </tr>
+                {% endfor %}
+            </tbody>
+          </table>
+
+        <hr class="mb-3">
+
+        {% endif %}
+
+
+    </div>
+</div>
+
+{% endblock content %}
