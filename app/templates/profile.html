@@ -1,0 +1,37 @@
+{% extends 'base.html' %}
+{% from 'bootstrap5/form.html' import render_form %}
+
+{% block title %}
+    {{ title }}
+{% endblock title %}
+
+{% block content %}
+
+<div class="container d-flex justify-content-center align-items-center col-lg-10 col-md-10 col-sm-10" style="min-height: 100vh; padding-top: 5rem; padding-bottom: 5rem; ">
+    <div style="max-width: 1500px; padding-left: 50px; padding-right: 50px;" class="login-container shadow-lg  rounded-3">
+        <!-- Login Header -->
+        <div class="login-header text-center mb-5 mt-5">
+            <h4 class="mb-0 mt-3">Login</h4>
+        </div>
+        <hr>
+
+        <div class="card mb-3" style="max-width: 540px;">
+            <div class="row g-0">
+              <div class="col-md-4">
+                <img src="..." class="img-fluid rounded-start" alt="...">
+              </div>
+              <div class="col-md-8">
+                <div class="card-body">
+                  <h5 class="card-title">Card title</h5>
+                  <p class="card-text">This is a wider card with supporting text below as a natural lead-in to additional content. This content is a little bit longer.</p>
+                  <p class="card-text"><small class="text-body-secondary">Last updated 3 mins ago</small></p>
+                </div>
+              </div>
+            </div>
+          </div>
+        
+        </div>
+    </div>
+</div>
+
+{% endblock content %}
