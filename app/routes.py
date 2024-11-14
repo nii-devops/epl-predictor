@@ -399,7 +399,6 @@ def predict():
 
 
 
-
 # In your blueprint file (assuming bp is your blueprint)
 @app.route('/select-results-week', methods=['GET', 'POST'])
 def results_week():

@@ -1,0 +1,61 @@
+# Python cache
+__pycache__/
+*.py[cod]
+
+# Virtual environment
+venv/
+env/
+ENV/
+.venv/
+.env/
+virt/
+
+# Flask instance folder
+instance/
+
+# Configuration files
+*.cfg
+*.ini
+
+# Jupyter Notebook files
+.ipynb_checkpoints
+
+# Pytest
+.cache/
+*.cover
+*.log
+
+# Coverage reports
+htmlcov/
+coverage.xml
+*.cover
+
+# IDE specific files
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# MacOS specific files
+.DS_Store
+
+# Windows specific files
+Thumbs.db
+ehthumbs.db
+
+# Environment variable files
+.env
+*.env
+
+# Miscellaneous
+*.bak
+*.swp
+*.tmp
+*.log
+*.sqlite3
+
+test.py
+
+
+# Static files
+/static/
