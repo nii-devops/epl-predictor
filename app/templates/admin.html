@@ -114,7 +114,7 @@
                                         <td>{{ loop.index }}</td>
                                         <td>{{ table }}</td>
                                         <td>
-                                            <a class="btn btn-outline-warning btn-sm rounded-pill" href="{{ url_for('clear_table') }}" onclick="return confirm('Are you sure you want to clear the records? This action can NOT be undone!');">Clear Records</a>
+                                            <a class="btn btn-outline-warning btn-sm rounded-pill" href="{{ url_for('clear_table', table_name=table) }}" onclick="return confirm('Are you sure you want to clear the records? This action can NOT be undone!');">Clear Records</a>
                                             <a class="btn btn-outline-danger btn-sm rounded-pill" href="{{ url_for('drop_table') }}" onclick="return confirm('Are you sure you want to drop the table? This action can NOT be undone!');">Drop Table</a>
                                         </td>
                                     </tr>

@@ -1,7 +1,8 @@
 from flask import Flask, render_template, redirect, url_for, flash, session, request, message_flashed
 from flask_login import current_user, login_user, logout_user, login_required, LoginManager
-from .forms import (RegisterForm, LoginForm, DatabaseForm, FixtureForm, ResultsForm, PredictionForm, NameForm, AdminRegisterForm,
-                    SelectWeekForm, PredictionWeekForm, UserEmailForm, UserPredictionForm, ScoreWeekForm, NickNameForm)
+from .forms import (RegisterForm, LoginForm, DatabaseForm, FixtureForm, ResultsForm, PredictionForm, 
+                    NameForm, SelectWeekForm, PredictionWeekForm, UserEmailForm, PredictResultWeekForm,
+                    UserPredictionForm, ScoreWeekForm, NickNameForm)
 from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import datetime, timedelta
 from . import db, app, login_manager
@@ -126,7 +127,7 @@ def register():
             user = User.query.filter_by(username=form.username.data).first()
             if user:
                 login_user(user)
-                flash(f'Welcome {name}.', category='success')
+                flash(f'Welcome, {name}.', category='success')
                 return redirect(url_for('home'))
             else:
                 flash(f'Accrount creation for {username} failed!', category='danger')
@@ -142,7 +143,7 @@ def login():
     # Check if the user is already authenticated
     if current_user.is_authenticated:
         flash('User is already authenticated.', 'info')
-        return redirect(url_for('home'))
+        return redirect(url_for('profile', username=current_user.username))  # Redirect to profile page
     
     form = LoginForm()
     if form.validate_on_submit():
@@ -152,10 +153,20 @@ def login():
             if check_password_hash(user.password, form.password.data):
                 login_user(user)
                 flash("Login successful!", 'success')
-                return redirect(url_for('home'))
+                return redirect(url_for('profile', username=username))  # Redirect to profile page
             flash("Password incorrect! Try again", 'warning')
         flash(f"User with email {username} does not exist! Try again or register.", 'danger')
     return render_template('login.html', title='Login', form=form)
+
+
+
+
+# New route for the profile page
+@app.route('/profile/<username>')
+@login_required
+def profile(username):
+    user = User.query.filter_by(username=username).first_or_404()
+    return render_template('profile.html', title='Profile', user=user)
 
 
 
@@ -200,7 +211,7 @@ def authorize_google():
         else:
             name = user.name
             login_user(user)
-            flash('Welcome {name}.', 'success')
+            flash(f'Welcome, {name}.', 'success')
             return redirect(url_for('home'))
 
     except Exception as e:
@@ -220,7 +231,6 @@ def nickname():
     if form.validate_on_submit():
         nickname = form.nickname.data
         name = form.name.data
-        print(f"{nickname}: {username}")
         new_user = User(
             username=username,
             nickname=nickname,
@@ -231,7 +241,7 @@ def nickname():
         user = User.query.filter_by(username=username).first()
         if user:
             login_user(user)
-            flash("User logged in successfully.", "success")
+            flash(f"Welcome, {name}.", "success")
             return redirect(url_for('home'))
         else:
             flash("User not found", 'danger')
@@ -245,14 +255,16 @@ def logout():
     logout_user()
     session.clear()
     flash(f"User logged out successfully.", 'success')
-    return redirect(url_for('main.home'))
+    return redirect(url_for('home'))
 
 
 
 @app.route('/select-matchweek', methods=['GET', 'POST'])
 def match_week():
     form = SelectWeekForm()
+
     if form.validate_on_submit():
+
         week_number = form.week.data
         # Ensure week_number is an integer
         try:
@@ -263,12 +275,13 @@ def match_week():
 
         # Check if the week_number already exists
         if not Week.query.filter_by(week_number=week_number).first():
-            wk = Week(
+            week = Week(
                 week_number=week_number
             )
-            db.session.add(wk)
+            db.session.add(week)
             db.session.commit()  # Define message
             flash(f'Week {week_number} created successfully!', 'success')
+            return redirect(url_for('fixtures'))
         else:
             flash(f'Week {week_number} already exists!', 'warning')
     else:
@@ -281,8 +294,11 @@ def match_week():
 @app.route('/fixture', methods=['GET', 'POST'])
 def fixtures():
     form = FixtureForm()
+    
     weeks = Week.query.order_by(Week.week_number).all()  # Retrieve week numbers
-    form.game_week.choices = [(week.week_number, f"Week {week.week_number}") for week in weeks]
+    if weeks:
+        form.game_week.data = max(week.week_number for week in weeks)
+    #form.game_week.choices = [(week.week_number, f"Week {week.week_number}") for week in weeks]
 
     if form.validate_on_submit():  # Check if the form is submitted and valid
         week = form.game_week.data
@@ -309,7 +325,7 @@ def fixtures():
         existing_fixture = Fixture.query.filter_by(week_id=week).first()
         if existing_fixture:
             flash(f'Fixtures for week {week} already exist!', 'warning')
-            return redirect(url_for('main.home'))  # Redirect if it exists
+            return redirect(url_for('home'))  # Redirect if it exists
 
         new_fixture = Fixture(
             week_id=week,
@@ -345,12 +361,15 @@ def prediction_week():
 
 
 @app.route('/predict', methods=['GET', 'POST'])
-@login_required
+#@login_required
 def predict():
     form = PredictionForm()
 
-    # Get and validate the week parameter
-    week = request.args.get('week')
+    weeks = Week.query.order_by(Week.week_number).all()  # Retrieve week numbers
+    if weeks:
+        form.game_week.data = max(week.week_number for week in weeks)
+
+    week = form.game_week.data
     try:
         week = int(week)  # Convert to integer if possible
     except (TypeError, ValueError):
@@ -395,7 +414,7 @@ def predict():
         db.session.commit()
         flash(f"Predictions for Game Week {game_week} submitted.", 'success')
         return redirect(url_for('home'))
-    return render_template('predict.html', title='Predict Results', form=form)
+    return render_template('predict.html', title='Predict Results', form=form, week=week)
 
 
 
@@ -423,8 +442,13 @@ def results_week():
 def results():
     form = PredictionForm()
 
+    weeks = Week.query.order_by(Week.week_number).all()  # Retrieve week numbers
+    if weeks:  # Check if there are any weeks
+        form.game_week.data = max(week.week_number for week in weeks)  # Set the highest week_number
+
     # Get and validate the week parameter
-    week = request.args.get('week')
+    week = form.game_week.data
+
     try:
         week = int(week)  # Convert to integer if possible
     except (TypeError, ValueError):
@@ -451,7 +475,7 @@ def results():
                 form[f'away_{i + 1}'].data = away_teams[i]
 
     if form.validate_on_submit():
-        game_week = week
+        game_week = form.week.data
         results_data = {}
         for i in range(1, 11):  # Iterate from 1 to 10 to populate predicted scores into a JSON-formatted text
             results_data[f"{form[f'home_{i}'].data}-{form[f'away_{i}'].data}"] = {
@@ -460,12 +484,13 @@ def results():
             }
         # Write/Save data to database
         results = Result(
-            week_id             = game_week,
-            results    = results_data
+            week_id = game_week,
+            results = results_data
         )
         db.session.add(results)
         db.session.commit()
         flash(f"Results for Game Week {game_week} submitted.", 'success')
+        score()
         return redirect(url_for('home'))
 
     return render_template('results.html', title='Enter Results', form=form, week=week)
@@ -555,6 +580,9 @@ def get_predictions():
     weeks = Week.query.order_by(Week.week_number).all()  # Retrieve week numbers
     form.week.choices = [(week.week_number, f"Week {week.week_number}") for week in weeks]
 
+    # New code to set the highest week_number in the form
+    if weeks:  # Check if there are any weeks
+        form.week.data = max(week.week_number for week in weeks)  # Set the highest week_number
 
     if form.validate_on_submit():
         week = form.week.data
@@ -595,7 +623,6 @@ def get_predictions():
                 # Clear user_scores only after processing all predictions for the user
                 full_scores[name] = user_scores  # This should work as intended
         print(full_scores)
-
         return render_template('get_predictions.html', matches=match_list, scores=full_scores, week=week)
 
     return render_template('get_predictions.html', form=form)  # Pass predictions to the template
@@ -642,64 +669,60 @@ def get_results():
 
 @app.route('/generate-scores', methods=['GET' ,'POST'])
 def score():
-    form = ScoreWeekForm()
 
     weeks = Week.query.order_by(Week.week_number).all()  # Retrieve week numbers
-    form.week.choices = [(week.week_number, f"Week {week.week_number}") for week in weeks]
+    if weeks:
+        week = max(week.week_number for week in weeks)
 
-    if form.validate_on_submit():
-        week = form.week.data
-
-        try:
-            week = int(week)  # Convert to integer if possible
-        except (TypeError, ValueError):
-            flash("Invalid week number provided!", category='danger')
-            return redirect(url_for('get_predictions'))
+    try:
+        week = int(week)  # Convert to integer if possible
+    except (TypeError, ValueError):
+        flash("Invalid week number provided!", category='danger')
+        return redirect(url_for('get_predictions'))
         
-        #Check if the selected week's score already exists
-        if Score.query.filter_by(week_id=week).first():
-            flash(f"Week {week} Scores exist axist!")
-            return redirect(url_for('test_score'))
+    #Check if the selected week's score already exists
+    if Score.query.filter_by(week_id=week).first():
+        flash(f"Week {week} scores exist axist!")
 
-        week_results = Result.query.filter_by(week_id=week).first()
-        # Organize result into json
-        results     = {"master": week_results.results}    
-        # New code to convert user_predictions to a list of dictionaries
-        user_predictions = Prediction.query.filter_by(week_id=week).all()  # Get all user predictions for the week
+    week_results = Result.query.filter_by(week_id=week).first()
+    # Organize result into json
+    results     = {"master": week_results.results}    
+    # New code to convert user_predictions to a list of dictionaries
+    user_predictions = Prediction.query.filter_by(week_id=week).all()  # Get all user predictions for the week
 
-        # Compare user predictions with results and assign scores
-        for prediction in user_predictions:
-            user_score = prediction.user_predictions
-            match_results = results["master"]  # Access the results
-            user_points = 0
-            print(user_points)
-            for match, score in user_score.items():
-                # Check if the match exists in the results
-                if match in match_results:
-                    # Compare scores and assign points
-                    if match_results[match]["home"] == score["home"] and match_results[match]["away"] == score["away"]:
-                        points = 5  # Exact match
-                    elif (match_results[match]["home"] > match_results[match]["away"] and score["home"] > score["away"]) or \
-                        (match_results[match]["home"] < match_results[match]["away"] and score["home"] < score["away"]) or \
-                        (match_results[match]["home"] == match_results[match]["away"] and score["home"] == score["away"])  :
-                        points = 3  # Correct outcome
-                    else:
-                        points = 0  # No points
+    # Compare user predictions with results and assign scores
+    for prediction in user_predictions:
+        user_score = prediction.user_predictions
+        match_results = results["master"]  # Access the results
+        user_points = 0
+        print(user_points)
+        for match, score in user_score.items():
+            # Check if the match exists in the results
+            if match in match_results:
+                # Compare scores and assign points
+                if match_results[match]["home"] == score["home"] and match_results[match]["away"] == score["away"]:
+                    points = 5  # Exact match
+                elif (match_results[match]["home"] > match_results[match]["away"] and score["home"] > score["away"]) or \
+                    (match_results[match]["home"] < match_results[match]["away"] and score["home"] < score["away"]) or \
+                    (match_results[match]["home"] == match_results[match]["away"] and score["home"] == score["away"])  :
+                    points = 3  # Correct outcome
+                else:
+                    points = 0  # No points
 
-                    user_points += points
+                user_points += points
 
-            final_user_score = Score(
-                week_id = week,
-                user_id = prediction.user_id,
-                points = user_points
-            )
-            db.session.add(final_user_score)
-            db.session.commit()
-            user_points = 0       
-        flash(f"Scores for Week {week} computed and saved successfully", "success")
-        return redirect(url_for('home'))
+        final_user_score = Score(
+            week_id = week,
+            user_id = prediction.user_id,
+            points = user_points
+        )
+        db.session.add(final_user_score)
+        db.session.commit()
+        user_points = 0       
+    flash(f"Scores for Week {week} computed and saved successfully!", "success")
+    return redirect(url_for('home'))
 
-    return render_template('scores.html', form=form)
+    #return render_template('scores.html', form=form)
 
 
 
@@ -795,6 +818,14 @@ def drop_table():
     return redirect(url_for('admin'))  # Redirect to the admin panel or appropriate page
 
 
+
+@app.route('/drop-table', methods=['get', 'post'])
+def clear_weeks():
+    # Delete all records from the Week table
+    db.session.query(Week).delete()
+    db.session.commit()  # Commit the changes to the database
+    flash("All records from the Week table have been deleted.", 'success')
+    return redirect(url_for('home'))  # Redirect back to the admin page
 
 
 

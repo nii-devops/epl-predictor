@@ -48,16 +48,21 @@ epl_teams = (
 
 class NickNameForm(FlaskForm):
     name        = StringField('Full Name', validators=[DataRequired()])
-    nickname    = StringField('Nickname', validators=[DataRequired()])
+    nickname    = StringField('Nickname', validators=[DataRequired()], render_kw={"placeholder": "e.g. Oboy Siki"})  # Added placeholder
     username    = EmailField('Username', validators=[DataRequired(), Email()])
     submit      = SubmitField('Submit')
 
+
+class PredictResultWeekForm(FlaskForm):
+    week = IntegerField('Week Number', validators=[DataRequired()])
+    submit = SubmitField('Submit')
 
 
 class NameForm(FlaskForm):
     name        = StringField('Name', validators=[DataRequired()])#, render_kw=[{"Placeholder": "e.g. DannyBoy"}])
     email       = StringField('Email', validators=[DataRequired()])
     submit      = SubmitField('Submit')
+
 
 class UserEmailForm(FlaskForm):
     email       = EmailField('Email Address', validators=[Email()])  # Add your weeks here
@@ -94,7 +99,7 @@ class LoginForm(FlaskForm):
 
 class RegisterForm(FlaskForm):
     name        = StringField('Full Name', validators=[DataRequired()])
-    nickname    = StringField('Nickname')
+    nickname    = StringField('Nickname', validators=[DataRequired()], render_kw={"placeholder": "e.g. Oboy Siki"})
     username    = EmailField('Email', validators=[DataRequired(), Email()])
     password    = PasswordField('Password', validators=[DataRequired()])
     password_2  = PasswordField('Repeat Password', validators=[DataRequired(), EqualTo('password', message='Passwords must match.')])
@@ -196,7 +201,7 @@ class FixtureForm(FlaskForm):
             raise ValidationError('Team name must be a alphanumeric string.')
         
         
-    game_week = SelectField('Game Week', validators=[DataRequired()], coerce=int)  # Expect an integer valueempty choices
+    game_week = IntegerField('Game Week', validators=[DataRequired()], render_kw={'readonly': True})
 
     home_1 = SelectField('Match 1 Home Team', validators=[DataRequired(), validate_team_name], choices=teams)
     away_1 = SelectField('Match 1 Away Team', validators=[DataRequired(), validate_team_name], choices=teams)
@@ -238,7 +243,8 @@ class PredictionForm(FlaskForm):
     def validate_positive_score(form, field):
         if (field.data is not None and field.data < 0) or field.data is None:
             raise ValidationError('Score must be a positive integer.')
-        
+
+    game_week = IntegerField('Game Week', validators=[DataRequired()])    
 
     home_1 = StringField('Match 1 Home Team', validators=[DataRequired()])
     home_1_score = IntegerField('Home Score', validators=[validate_positive_score])
@@ -295,8 +301,12 @@ class PredictionForm(FlaskForm):
     
 
 class ResultsForm(FlaskForm):
-    game_week = SelectField('Game Week', validators=[DataRequired()], coerce=int)  # Expect an integer value
-    
+    def validate_positive_score(form, field):
+        if (field.data is not None and field.data < 0) or field.data is None:
+            raise ValidationError('Score must be a positive integer.')
+
+    game_week = IntegerField('Game Week', validators=[DataRequired()])    
+
     home_1 = StringField('Match 1 Home Team', validators=[DataRequired()])
     home_1_score = IntegerField('Home Score')
     away_1 = StringField('Match 1 Away Team', validators=[DataRequired()])

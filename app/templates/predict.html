@@ -17,7 +17,7 @@
     <div style="width: 600px; padding-left: 50px; padding-right: 50px;" class="login-container shadow-lg  rounded-3">
         <!-- Login Header -->
         <div class="form-header text-center mb-3 mt-5">
-            <h4 class="mb-0 mt-3">Select Match Week</h4>
+            <h4 class="mb-0 mt-3">Make Predictions for <em>Match Week {{ week }}</em> </h4>
         </div>
         <hr class="mb-3">
 
@@ -27,8 +27,15 @@
             <div class="mt-3 mb-5 form-control">
                 <form class="form-group" method="post">
                     {{ form.csrf_token() }}
-                    
-                
+
+                    <div class="row mb-3">
+                        <div class="col-md-6 d-flex align-items-center ps-5">
+                            {{ form.game_week.label() }}
+                        </div>
+                        <div class="col-md-6 d-flex align-items-center">
+                            {{ form.game_week(class="form-control ps-3", readonly=True) }}
+                        </div>
+                    </div>
                     <div class="row">
                         <div class="col-md-6 d-flex align-items-center">
                             {{ form.home_1(class="form-control w-100 ms-2") }}

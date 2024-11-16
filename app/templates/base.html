@@ -27,50 +27,57 @@
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav ms-auto">
-                    <li class="nav-item ms-2">
-                        <a class="nav-link" href="{{ url_for('home') }}">Home</a>
-                    </li>
+
+                   
+                    
+                    {% if current_user.id == 1 or current_user.is_admin == true %}
                     <li class="nav-item ms-2">
                         <a class="nav-link" href="{{ url_for('match_week') }}">Match Week</a>
                     </li>
                     <li class="nav-item ms-2">
                         <a class="nav-link" href="{{ url_for('fixtures') }}">Fixtures</a>
                     </li>
+                    
                     <li class="nav-item ms-2">
-                        <a class="nav-link" href="{{ url_for('prediction_week') }}">Predict</a>
+                        <a class="nav-link" href="{{ url_for('results') }}">Results</a>
                     </li>
-                    <li class="nav-item ms-2">
-                        <a class="nav-link" href="{{ url_for('results_week') }}">Results</a>
-                    </li>
-                    <li class="nav-item ms-2">
-                        <a class="nav-link" href="{{ url_for('score') }}">Score</a>
-                    </li>
+                    
                     <li class="nav-item ms-2">
                         <a class="nav-link" href="{{ url_for('get_user_predictions') }}">User Picks</a>
                     </li>
                     <li class="nav-item ms-2">
-                        <a class="nav-link" href="{{ url_for('leaderboard') }}">Leaderboard</a>
-                    </li>
-                    <li class="nav-item ms-2">
-                        <a class="nav-link" href="{{ url_for('prediction_week') }}">Predict</a>
-                    </li>
-                    <li class="nav-item ms-2">
                         <a class="nav-link" href="{{ url_for('admin') }}">Admin Panel</a>
                     </li>
+                    {% endif %}
 
-                    <!--li class="nav-item ms-2">
-                        <a class="nav-link" href="#contact">Contact</a>
-                    </li-->
+                    <li class="nav-item ms-2">
+                        <div style="height: 35px; " class="vr"></div> <!-- Vertical divider -->
+                    </li>
+
+
+                    <li class="nav-item ms-2">
+                        <a class="nav-link" href="{{ url_for('home') }}">Home</a>
+                    </li>
+                    <li class="nav-item ms-2">
+                        <a class="nav-link" href="{{ url_for('predict') }}">Predict</a>
+                    </li>
+                    <li class="nav-item ms-2">
+                        <a class="nav-link" href="{{ url_for('leaderboard') }}">Leaderboard</a>
+                    </li>
+                   
+                    
 
                     {% if current_user.is_authenticated %}
                     <li class="nav-item ms-2">
-                        <a id="logout-btn" class="btn btn-primary btn-md custom-btn ms-3 rounded-pill" href="#contact">Logout</a>
+                        <a class="nav-link" href="{{ url_for('profile', username=current_user.username) }}">Profile</a>
+                    </li>
+                    <li class="nav-item ms-2">
+                        <a id="logout-btn" class="btn btn-primary btn-md custom-btn ms-3 rounded-pill" href="{{ url_for('logout') }}">Logout</a>
                     </li>
                     {% else %}
                     <li class="nav-item ms-2">
-                        <a id="login-btn" class="btn btn-primary btn-md custom-btn ms-3 rounded-pill" href="#contact">Login</a>
-                    </li>
-                    
+                        <a id="login-btn" class="btn btn-primary btn-md custom-btn ms-3 rounded-pill" href="{{ url_for('login') }}">Login</a>
+                    </li>                   
                     {% endif %}
                 </ul>
             </div>
@@ -113,10 +120,9 @@
                 <div class="text-md-center">
                     <h5 class="mb-4">Connect With Me</h5>
                     <div class="d-flex gap-4 justify-content-md-center">
-                        <a href="#" class="social-link"><i class="fab fa-twitter"></i></a>
-                        <a href="#" class="social-link"><i class="fab fa-linkedin-in"></i></a>
-                        <a href="#" class="social-link"><i class="fab fa-instagram"></i></a>
-                        <a href="#" class="social-link"><i class="fab fa-github"></i></a>
+                        <a href="https://x.com/NiiAkoAdjei" class="social-link"><i class="fab fa-twitter"></i></a>
+                        <a href="https://www.linkedin.com/in/benakoadjei/" class="social-link"><i class="fab fa-linkedin-in"></i></a>
+                        <a href="https://www.instagram.com/niiakoadjei/" class="social-link"><i class="fab fa-instagram"></i></a>
                     </div>
                 </div>
             </div>

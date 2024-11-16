@@ -32,6 +32,15 @@
                     
                     <form class="form-group" method="post">
                         {{ form.csrf_token() }}
+
+                        <div class="row mb-3">
+                            <div class="col-md-6 d-flex align-items-center ps-5">
+                                {{ form.game_week.label() }}
+                            </div>
+                            <div class="col-md-6 d-flex align-items-center">
+                                {{ form.game_week(class="form-control ps-3") }}
+                            </div>
+                        </div>
                         
                         <div class="row">
                             <div class="col-md-6 d-flex align-items-center">
