@@ -201,7 +201,7 @@ def profile(user_id):
 
 
 
-
+"""
 # Login for Google
 @app.route('/login/google')
 def google_login():
@@ -212,7 +212,67 @@ def google_login():
         app.logger.error(f"Login Error: {str(e)}")
         return "Error occurred during login!"
 
+"""
 
+
+
+
+@app.route('/login/google')
+def google_login():
+    try:
+        # Explicitly set the redirect URI
+        redirect_uri = os.getenv('REDIRECT_URI')
+        
+        app.logger.info(f"Using redirect URI: {redirect_uri}")
+        
+        return google.authorize_redirect(redirect_uri)
+    except Exception as e:
+        app.logger.error(f"Login Error: {str(e)}")
+        return "Error occurred during login!"
+
+@app.route('/authorize/google')
+def authorize_google():
+    try:
+        # Exchange the authorization code for a token
+        token = google.authorize_access_token()
+        
+        # Fetch user information from Google's user info endpoint
+        userinfo_endpoint = google.server_metadata.get('userinfo_endpoint')
+        if not userinfo_endpoint:
+            raise ValueError("User info endpoint not found in Google metadata.")
+        
+        resp = google.get(userinfo_endpoint)
+        user_info = resp.json()  # Use .json() to parse the response correctly
+        
+        # Extract user details
+        username = user_info.get('email')
+        name = user_info.get('name')
+
+        if not username:
+            raise ValueError("Email not found in user information.")
+
+        # Check if user exists or create a new one
+        user = User.query.filter_by(username=username).first()
+
+        if not user:
+            session['username'] = username
+            session['name'] = name
+            session['oauth_token'] = token
+            return redirect(url_for('nickname', username=username, name=name))
+        else:
+            name = user.name
+            login_user(user)
+            flash(f'Welcome, {name}.', 'success')
+            return redirect(url_for('home'))
+
+    except Exception as e:
+        app.logger.error(f"Authorization Error: {str(e)}")
+        return "Error occurred during authorization!"
+
+
+
+
+"""
 
 # Authorize for Google
 @app.route('/authorize/google')
@@ -248,6 +308,10 @@ def authorize_google():
     except Exception as e:
         app.logger.error(f"Authorization Error: {str(e)}")
         return "Error occurred during authorization!"
+
+
+
+"""
 
 
 
@@ -373,7 +437,7 @@ def fixtures():
 
 
 @app.route('/predict', methods=['GET', 'POST'])
-#@login_required
+@login_required
 def predict():
     form = PredictionForm()
 
