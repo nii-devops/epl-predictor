@@ -108,7 +108,7 @@ def register():
         nickname = form.nickname.data
         username = form.username.data
         password = form.password.data
-        hashed_passwd = generate_password_hash(password=password, method='scrypt', salt_length=16)
+        hashed_passwd = generate_password_hash(password=password, method='scrypt', salt_length=8)
 
         usr = User.query.filter_by(username=form.username.data).first()
         if not usr:
