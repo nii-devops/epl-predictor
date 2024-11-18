@@ -201,20 +201,6 @@ def profile(user_id):
 
 
 
-"""
-# Login for Google
-@app.route('/login/google')
-def google_login():
-    try:
-        redirect_uri = url_for('authorize_google', _external=True)
-        return google.authorize_redirect(redirect_uri)
-    except Exception as e:
-        app.logger.error(f"Login Error: {str(e)}")
-        return "Error occurred during login!"
-
-"""
-
-
 
 
 @app.route('/login/google')
@@ -229,6 +215,8 @@ def google_login():
     except Exception as e:
         app.logger.error(f"Login Error: {str(e)}")
         return "Error occurred during login!"
+
+
 
 @app.route('/authorize/google')
 def authorize_google():
@@ -271,8 +259,18 @@ def authorize_google():
 
 
 
-
+# LOCALHOST CONFIGURATION
 """
+# Login for Google
+@app.route('/login/google')
+def google_login():
+    try:
+        redirect_uri = url_for('authorize_google', _external=True)
+        return google.authorize_redirect(redirect_uri)
+    except Exception as e:
+        app.logger.error(f"Login Error: {str(e)}")
+        return "Error occurred during login!"
+
 
 # Authorize for Google
 @app.route('/authorize/google')
