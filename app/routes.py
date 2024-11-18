@@ -617,7 +617,7 @@ def get_user_predictions():
                     }
                 num += 1
             print(matches)
-            return render_template('get_user_predictions.html', id=user_id, name=name, week=week, matches=matches)  # Return the JSON response
+            return render_template('get_user_predictions.html', id=user_id, name=name, week=week, matches=matches, email=user_email)  # Return the JSON response
 
     return render_template('get_user_predictions.html', title='User Predictions', form=form)
 
@@ -786,7 +786,7 @@ def leaderboard():
         user_score = Score.query.filter_by(user_id=user.id).all()
         for sc in user_score:
             score += sc.points
-            scores[f"{user.name}"] = score
+            scores[user.name] = {user.username: score}
         print(f"{user.name}: {score}")
         score = 0
     print(scores)

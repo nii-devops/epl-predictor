@@ -31,6 +31,7 @@
               <tr>
                 <th scope="col">Position</th>
                 <th scope="col">Name</th>
+                <th scope="col">Name</th>
                 <th scope="col">Points</th>
               </tr>
             </thead>
@@ -40,7 +41,10 @@
               <tr>
                 <th scope="row"> {{ loop.index }}</th>
                 <td>{{ name }}</td>
-                <td>{{ score }}</td>
+                {% for em, sc in score.items() %}
+                <td>{{ em }}</td>
+                <td>{{ sc }}</td>
+                {% endfor %}
               </tr>
             {% endfor %}
             </tbody>
