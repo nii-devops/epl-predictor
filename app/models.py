@@ -14,7 +14,7 @@ class User(db.Model, UserMixin):
     name = db.Column(db.String(100), nullable=False)
     nickname = db.Column(db.String(30) )
     username = db.Column(db.String(120), unique=True, nullable=False)
-    password = db.Column(db.String(120))
+    password = db.Column(db.String(250))
 
     is_admin = db.Column(db.Boolean, default=False)
 
