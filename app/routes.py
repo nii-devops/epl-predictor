@@ -593,14 +593,14 @@ def get_user_predictions():
 
     if form.validate_on_submit():
         week = form.week.data
-        email = form.email.data
+        username = form.email.data
 
         try:
             week = int(week)  # Convert to integer if possible
         except (TypeError, ValueError):
             flash("Invalid week number provided!", category='danger')
             return redirect(url_for('get_predictions'))
-        user = User.query.filter_by(email=email).first()
+        user = User.query.filter_by(username=username).first()
         user_prediction = Prediction.query.filter_by(user_id=user.id, week_id=week).first()
         data = user_prediction.user_predictions
         matches = {}
