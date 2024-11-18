@@ -11,19 +11,21 @@
     <div style="max-width: 1500px; padding-left: 50px; padding-right: 50px;" class="login-container shadow-lg  rounded-3">
         <!-- Login Header -->
         <div class="login-header text-center mb-3 mt-5">
-            <h4 class="mb-0 mt-3">{{ user.name }}</h4>
+            <h4 class="mb-0 mt-3">User Profile</h4>
         </div>
         <hr>
 
         <div class="card mb-3" style="max-width: 540px;">
             <div class="row g-0">
-              <div class="col-md-4">
-                <img src="..." class="img-fluid rounded-start" alt="...">
+              <div class="col-md-4 d-flex justify-content-center align-items-center mt-3" style="height: 100%;">
+                <div class="circle">
+                  <h1 style="font-size: 3.5rem;" class="text-center">{{ position }}</h1>
+                </div>
               </div>
               <div class="col-md-8">
                 <div class="card-body">
-                  <h5 class="card-title">{{ user.name }}</h5>
-                  <p class="card-text">This is a wider card with supporting text below as a natural lead-in to additional content. This content is a little bit longer.</p>
+                  <h5 class="card-title">{{ user.nickname }}</h5>
+                  <h4 class="card-text">Total Points: {{points}}</h4>
                   <p class="card-text"><small class="text-body-secondary">Last updated 3 mins ago</small></p>
                 </div>
               </div>

@@ -7,7 +7,6 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import datetime, timedelta
 from . import db, app, login_manager
 from .models import User, Week, Fixture, Score, Result, Prediction
-from flask_login import login_user, logout_user, login_required, current_user
 from pprint import pprint
 from sqlalchemy import inspect, text
 from authlib.integrations.flask_client import OAuth
@@ -153,7 +152,7 @@ def login():
             if check_password_hash(user.password, form.password.data):
                 login_user(user)
                 flash("Login successful!", 'success')
-                return redirect(url_for('profile', username=username))  # Redirect to profile page
+                return redirect(url_for('profile', user_id=user.id))  # Redirect to profile page
             flash("Password incorrect! Try again", 'warning')
         flash(f"User with email {username} does not exist! Try again or register.", 'danger')
     return render_template('login.html', title='Login', form=form)
@@ -162,11 +161,43 @@ def login():
 
 
 # New route for the profile page
-@app.route('/profile/<username>')
+@app.route('/profile/<int:user_id>')
 @login_required
-def profile(username):
-    user = User.query.filter_by(username=username).first_or_404()
-    return render_template('profile.html', title='Profile', user=user)
+def profile(user_id):
+    my_user = User.query.filter_by(id=user_id).first_or_404()
+    scores = []
+    points = 0
+    position = None
+    rank_id = None
+    users = User.query.all()
+    for user in users:
+        score = sum(score.points for score in Score.query.filter_by(user_id=user.id).all())
+        item = {user.id: score}
+        scores.append(item)
+    sorted_scores = sorted(scores, key=lambda x: list(x.values())[0], reverse=True)
+    print(sorted_scores)
+    #user_id = current_user.id
+    for i,j in enumerate(sorted_scores):
+        print(i, ": ", j)
+        print(type(i), type(j))
+    
+    for i,j in enumerate(sorted_scores):
+        for key,val in j.items():
+            if int(key) == user_id:
+                points = val
+                rank_id = i+1
+    if str(rank_id)[-1] == '1':
+        position = f"{rank_id}st"
+    elif str(rank_id)[-1] == '2':
+        position = f"{rank_id}nd"
+    elif str(rank_id)[-1] == '3':
+        position = f"{rank_id}rd"
+    else:
+        position = f"{rank_id}th"
+
+    print(f"Total Points :{points} \nPosition: {position}")
+
+    return render_template('profile.html', title='Profile', user=my_user, position=position, points=points)
 
 
 
@@ -242,7 +273,7 @@ def nickname():
         if user:
             login_user(user)
             flash(f"Welcome, {name}.", "success")
-            return redirect(url_for('home'))
+            return redirect(url_for('profile', user_id=user.id))
         else:
             flash("User not found", 'danger')
     return render_template('nickname.html', title='Set Nickname', form=form)
@@ -339,8 +370,7 @@ def fixtures():
     return render_template('fixtures.html', title='Create Fixture', form=form)
 
 
-
-
+"""
 # In your blueprint file (assuming bp is your blueprint)
 @app.route('/select-prediction-week', methods=['GET', 'POST'])
 def prediction_week():
@@ -357,6 +387,10 @@ def prediction_week():
         return redirect(url_for('predict', week=week_number))
 
     return render_template('match_week.html', title='Select Week', form=form)
+
+
+"""
+
 
 
 
@@ -418,6 +452,8 @@ def predict():
 
 
 
+
+"""
 # In your blueprint file (assuming bp is your blueprint)
 @app.route('/select-results-week', methods=['GET', 'POST'])
 def results_week():
@@ -434,6 +470,11 @@ def results_week():
         return redirect(url_for('results', week=week_number))
 
     return render_template('match_week.html', title='Select Week', form=form)
+
+
+"""
+
+
 
 
 
@@ -475,7 +516,7 @@ def results():
                 form[f'away_{i + 1}'].data = away_teams[i]
 
     if form.validate_on_submit():
-        game_week = form.week.data
+        game_week = form.game_week.data
         results_data = {}
         for i in range(1, 11):  # Iterate from 1 to 10 to populate predicted scores into a JSON-formatted text
             results_data[f"{form[f'home_{i}'].data}-{form[f'away_{i}'].data}"] = {
