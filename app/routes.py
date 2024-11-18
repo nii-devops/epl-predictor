@@ -370,28 +370,6 @@ def fixtures():
     return render_template('fixtures.html', title='Create Fixture', form=form)
 
 
-"""
-# In your blueprint file (assuming bp is your blueprint)
-@app.route('/select-prediction-week', methods=['GET', 'POST'])
-def prediction_week():
-    form = PredictionWeekForm()
-    if form.validate_on_submit():
-        week_number = form.week.data
-        try:
-            week_number = int(week_number)  # Convert to integer
-        except ValueError:
-            flash("Invalid week number!", category='warning')
-            return render_template('match_week.html', title='Select Week', form=form)
-
-        # Pass the week number to the predict route
-        return redirect(url_for('predict', week=week_number))
-
-    return render_template('match_week.html', title='Select Week', form=form)
-
-
-"""
-
-
 
 
 @app.route('/predict', methods=['GET', 'POST'])
@@ -449,31 +427,6 @@ def predict():
         flash(f"Predictions for Game Week {game_week} submitted.", 'success')
         return redirect(url_for('home'))
     return render_template('predict.html', title='Predict Results', form=form, week=week)
-
-
-
-
-"""
-# In your blueprint file (assuming bp is your blueprint)
-@app.route('/select-results-week', methods=['GET', 'POST'])
-def results_week():
-    form = PredictionWeekForm()
-    if form.validate_on_submit():
-        week_number = form.week.data
-        try:
-            week_number = int(week_number)  # Convert to integer
-        except ValueError:
-            flash("Invalid week number!", category='warning')
-            return render_template('match_week.html', title='Select Week', form=form)
-
-        # Pass the week number to the predict route
-        return redirect(url_for('results', week=week_number))
-
-    return render_template('match_week.html', title='Select Week', form=form)
-
-
-"""
-
 
 
 
