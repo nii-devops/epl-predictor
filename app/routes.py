@@ -175,11 +175,6 @@ def profile(user_id):
         item = {user.id: score}
         scores.append(item)
     sorted_scores = sorted(scores, key=lambda x: list(x.values())[0], reverse=True)
-    print(sorted_scores)
-    #user_id = current_user.id
-    for i,j in enumerate(sorted_scores):
-        print(i, ": ", j)
-        print(type(i), type(j))
     
     for i,j in enumerate(sorted_scores):
         for key,val in j.items():
@@ -194,8 +189,6 @@ def profile(user_id):
         position = f"{rank_id}rd"
     else:
         position = f"{rank_id}th"
-
-    print(f"Total Points :{points} \nPosition: {position}")
 
     return render_template('profile.html', title='Profile', user=my_user, position=position, points=points)
 
