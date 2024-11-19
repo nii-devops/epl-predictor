@@ -1,6 +1,5 @@
 from flask_sqlalchemy import SQLAlchemy
 
-#db = SQLAlchemy()
 
 from flask_login import UserMixin
 from app import db  
@@ -20,6 +19,7 @@ class User(db.Model, UserMixin):
 
     def __repr__(self):
         return f'<User {self.username}>'
+
 
 
 # Week Model
@@ -79,6 +79,7 @@ class Score(db.Model):
     # Relationships
     user        = db.relationship('User', backref='score')
     week        = db.relationship('Week', backref='score')
+
 
 
 # Score Model

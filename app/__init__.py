@@ -6,9 +6,8 @@ from flask_login import LoginManager
 
 
 
-
-
 load_dotenv()
+
 
 app = Flask(__name__)
 app.config["SECRET_KEY"] = os.getenv('SECRET_KEY')
@@ -24,6 +23,7 @@ login_manager.login_view = 'login'
 
 # Initialize extensions
 db.init_app(app)
+
 
 with app.app_context():
     from app import routes

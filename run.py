@@ -1,30 +1,16 @@
 from app import app, db
 
 
-# import json
-
-# def lambda_handler(event, context):
-#     # TODO implement
-    
-#     if __name__ == '__main__':
-#         with app.app_context():
-#             db.create_all()  # Create tables if they don't exist
-#         app.run(debug=True)
-
-#     return {
-#         'statusCode': 200,
-#         'body': json.dumps(app)
-#     }
-
-
-if __name__ == '__main__':
-    with app.app_context():
-        db.create_all()  # Create tables if they don't exist
-    app.run(host='0.0.0.0', port=8080, debug=True)
-
 
 
 # if __name__ == '__main__':
 #     with app.app_context():
 #         db.create_all()  # Create tables if they don't exist
-#     app.run(port=10000,debug=True)
+#     app.run(host='0.0.0.0', port=8080, debug=True)
+
+
+
+if __name__ == '__main__':
+    with app.app_context():
+        db.create_all()  # Create tables if they don't exist
+    app.run(port=10000,debug=True)

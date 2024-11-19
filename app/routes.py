@@ -45,6 +45,7 @@ teams_names = {
 login_manager = LoginManager()
 login_manager.init_app(app)
 
+
 def reverse_team_names():
     reversed_names = {}
     for i,j in teams_names.items():
@@ -76,7 +77,6 @@ def session_management():
 
         # Update last activity time if session is still active
         session['last_activity'] = datetime.now()  # This will be timezone-aware
-
 
 
 
@@ -142,7 +142,7 @@ def login():
     # Check if the user is already authenticated
     if current_user.is_authenticated:
         flash('User is already authenticated.', 'info')
-        return redirect(url_for('profile', username=current_user.username))  # Redirect to profile page
+        return redirect(url_for('profile', user_id=current_user.id))  # Redirect to profile page
     
     form = LoginForm()
     if form.validate_on_submit():
@@ -156,7 +156,6 @@ def login():
             flash("Password incorrect! Try again", 'warning')
         flash(f"User with email {username} does not exist! Try again or register.", 'danger')
     return render_template('login.html', title='Login', form=form)
-
 
 
 
@@ -347,10 +346,9 @@ def logout():
 
 @app.route('/select-matchweek', methods=['GET', 'POST'])
 def match_week():
+
     form = SelectWeekForm()
-
     if form.validate_on_submit():
-
         week_number = form.week.data
         # Ensure week_number is an integer
         try:
@@ -373,7 +371,6 @@ def match_week():
     else:
         message = None  # Define message as None if form is not submitted
     return render_template('match_week.html', title='Select Week', form=form)  # Pass message to template
-
 
 
 
@@ -423,7 +420,6 @@ def fixtures():
         flash(f'Week {week} fixtures created successfully!', 'success')  # Flash a success message
         return redirect(url_for('home'))  # Redirect to the fixtures page
     return render_template('fixtures.html', title='Create Fixture', form=form)
-
 
 
 
@@ -482,7 +478,6 @@ def predict():
         flash(f"Predictions for Game Week {game_week} submitted.", 'success')
         return redirect(url_for('home'))
     return render_template('predict.html', title='Predict Results', form=form, week=week)
-
 
 
 
@@ -635,7 +630,6 @@ def get_predictions():
 
     if form.validate_on_submit():
         week = form.week.data
-
         try:
             week = int(week)  # Convert to integer if possible
         except (TypeError, ValueError):
@@ -653,7 +647,6 @@ def get_predictions():
             h_team = team_names[h_team]
             a_team = team_names[a_team]
             match_list.append(f"{h_team}-{a_team}")
-
         full_scores = {}
         print(full_scores)
 
@@ -673,9 +666,7 @@ def get_predictions():
                 full_scores[name] = user_scores  # This should work as intended
         print(full_scores)
         return render_template('get_predictions.html', matches=match_list, scores=full_scores, week=week)
-
-    return render_template('get_predictions.html', form=form)  # Pass predictions to the template
-
+    return render_template('get_predictions.html', form=form)
 
 
 
@@ -711,8 +702,6 @@ def get_results():
             return render_template('get_results.html', week=week, results=results)  # Return the JSON response
 
     return render_template('get_results.html', title='Weekly Results', form=form)
-
-
 
 
 
