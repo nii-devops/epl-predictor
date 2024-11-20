@@ -80,16 +80,6 @@ def session_management():
 
 
 
-oauth = OAuth(app)
-
-google = oauth.register(
-    name='google',
-    client_id=os.getenv('CLIENT_ID'),
-    client_secret=os.getenv('CLIENT_SECRET'),
-    server_metadata_url='https://accounts.google.com/.well-known/openid-configuration',
-    client_kwargs={'scope': 'openid profile email'}
-)
-
 
 # #############################
 # #### ROUTES ROUTES ROUTES ###
@@ -192,9 +182,22 @@ def profile(user_id):
     return render_template('profile.html', title='Profile', user=my_user, position=position, points=points)
 
 
+# ######################################
+# #####   GOOGLE AUTHENTICATION    #####
+# ######################################
 
+oauth = OAuth(app)
 
+google = oauth.register(
+    name='google',
+    client_id=os.getenv('CLIENT_ID'),
+    client_secret=os.getenv('CLIENT_SECRET'),
+    server_metadata_url='https://accounts.google.com/.well-known/openid-configuration',
+    client_kwargs={'scope': 'openid profile email'}
+)
 
+# RENDER CONFIG
+"""
 @app.route('/login/google')
 def google_login():
     try:
@@ -250,9 +253,12 @@ def authorize_google():
         return "Error occurred during authorization!"
 
 
+"""
+
+
 
 # LOCALHOST CONFIGURATION
-"""
+
 # Login for Google
 @app.route('/login/google')
 def google_login():
@@ -299,9 +305,6 @@ def authorize_google():
         app.logger.error(f"Authorization Error: {str(e)}")
         return "Error occurred during authorization!"
 
-
-
-"""
 
 
 
