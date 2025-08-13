@@ -51,5 +51,9 @@ def create_app():
     from .routes import bp as main_bp
     app.register_blueprint(main_bp)
 
+    with app.app_context():
+        # Create tables if they don't exist
+        db.create_all()
+
     return app
 
