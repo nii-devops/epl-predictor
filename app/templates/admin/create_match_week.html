@@ -1,0 +1,187 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <h2><i class="fas fa-plus"></i> Create Match Week</h2>
+        <p class="text-muted">Set up a new match week with fixtures</p>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-12">
+        <form method="POST" id="matchWeekForm">
+            {{ form.hidden_tag() }}
+            <input type="hidden" id="num_fixtures" name="num_fixtures" value="{{ form.fixtures|length }}">
+            
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h5 class="card-title">Match Week Details</h5>
+                    
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            {{ form.week_number.label(class="form-label") }}
+                            {{ form.week_number(class="form-control") }}
+                            {% if form.week_number.errors %}
+                                <div class="text-danger">{{ form.week_number.errors[0] }}</div>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            {{ form.season.label(class="form-label") }}
+                            {{ form.season(class="form-control", placeholder="e.g., Match Week 1") }}
+                            {% if form.season.errors %}
+                                <div class="text-danger">{{ form.season.errors[0] }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            {{ form.predictions_open_time.label(class="form-label") }}
+                            {{ form.predictions_open_time(class="form-control", type="datetime-local") }}
+                            {% if form.predictions_open_time.errors %}
+                                <div class="text-danger">{{ form.predictions_open_time.errors[0] }}</div>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            {{ form.predictions_close_time.label(class="form-label") }}
+                            {{ form.predictions_close_time(class="form-control", type="datetime-local") }}
+                            {% if form.predictions_close_time.errors %}
+                                <div class="text-danger">{{ form.predictions_close_time.errors[0] }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card mb-4">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h5 class="card-title mb-0">Fixtures</h5>
+                        <button type="button" class="btn btn-outline-primary btn-sm" onclick="addFixture()">
+                            <i class="fas fa-plus"></i> Add Fixture
+                        </button>
+                    </div>
+                    
+                    <div id="fixtures-container">
+                        {% for fixture_form in form.fixtures %}
+                        <div class="fixture-form-group border rounded p-3 mb-3" data-index="{{ loop.index0 }}">
+                            <div class="row align-items-center">
+                                <div class="col-md-4 col-sm-4">
+                                    {{ fixture_form.home_team_id.label(class="form-label") }}
+                                    {{ fixture_form.home_team_id(class="form-select") }}
+                                </div>
+                                <div class="col-md-2 text-center">
+                                    <strong>vs</strong>
+                                </div>
+                                <div class="col-md-4 col-sm-4">
+                                    {{ fixture_form.away_team_id.label(class="form-label") }}
+                                    {{ fixture_form.away_team_id(class="form-select") }}
+                                </div>
+                                
+                                <div class="col-md-2">
+                                    <button type="button" class="btn btn-outline-danger btn-sm" onclick="removeFixture(this)" {% if loop.index0 == 0 %}style="visibility: hidden;"{% endif %}>
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+            
+            <div class="text-end">
+                <a href="{{ url_for('main.admin_dashboard') }}" class="btn btn-secondary me-2">Cancel</a>
+                {{ form.submit(class="btn epl-primary text-white") }}
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+
+
+
+{% block scripts %}
+
+<script>
+let fixtureIndex = {{ form.fixtures|length }};
+
+function addFixture() {
+    fetch('/api/add_fixture_form')
+        .then(response => response.text())
+        .then(html => {
+            const container = document.getElementById('fixtures-container');
+            // Replace __INDEX__ with the current fixtureIndex
+            const newFixtureHtml = html.replace(/__INDEX__/g, fixtureIndex);
+
+            // Create a temporary div to parse the HTML string
+            const tempDiv = document.createElement('div');
+            tempDiv.innerHTML = newFixtureHtml.trim();
+
+            // Get the .fixture-form-group element
+            const newFixture = tempDiv.querySelector('.fixture-form-group');
+            if (newFixture) {
+                newFixture.dataset.index = fixtureIndex;
+                container.appendChild(newFixture);
+                fixtureIndex++;
+                updateFixtureNames();
+            }
+        });
+}
+
+function removeFixture(button) {
+    const fixtureGroup = button.closest('.fixture-form-group');
+    fixtureGroup.remove();
+    updateFixtureNames();
+}
+
+
+function updateFixtureNames() {
+    const fixtures = document.querySelectorAll('.fixture-form-group');
+    fixtures.forEach((fixture, index) => {
+        const inputs = fixture.querySelectorAll('select, input');
+        inputs.forEach(input => {
+            const name = input.getAttribute('name');
+            if (name && name.includes('fixtures-')) {
+                const newName = name.replace(/fixtures-\d+/, `fixtures-${index}`);
+                input.setAttribute('name', newName);
+                input.setAttribute('id', newName);
+            }
+        });
+        
+        const labels = fixture.querySelectorAll('label');
+        labels.forEach(label => {
+            const forAttr = label.getAttribute('for');
+            if (forAttr && forAttr.includes('fixtures-')) {
+                const newFor = forAttr.replace(/fixtures-\d+/, `fixtures-${index}`);
+                label.setAttribute('for', newFor);
+            }
+        });
+    });
+    document.getElementById('num_fixtures').value = fixtures.length;
+}
+
+
+// Set default datetime values
+document.addEventListener('DOMContentLoaded', function() {
+    const now = new Date();
+    const nextWeek = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000);
+    
+    // Set default predictions open time (now)
+    const openTimeInput = document.getElementById('predictions_open_time');
+    if (openTimeInput && !openTimeInput.value) {
+        openTimeInput.value = now.toISOString().slice(0, 16);
+    }
+    
+    // Set default predictions close time (1 week from now)
+    const closeTimeInput = document.getElementById('predictions_close_time');
+    if (closeTimeInput && !closeTimeInput.value) {
+        closeTimeInput.value = nextWeek.toISOString().slice(0, 16);
+    }
+}); 
+
+</script>
+
+{% endblock %}

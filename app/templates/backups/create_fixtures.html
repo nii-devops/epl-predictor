@@ -1,0 +1,179 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <h2><i class="fas fa-plus"></i> Create Match Week</h2>
+        <p class="text-muted">Set up a new match week with fixtures</p>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-12">
+        <form method="POST" id="matchWeekForm">
+            {{ form.hidden_tag() }}
+            
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h5 class="card-title">Match Week Details</h5>
+                    
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            {{ form.week_number.label(class="form-label") }}
+                            {{ form.week_number(class="form-control") }}
+                            {% if form.week_number.errors %}
+                                <div class="text-danger">{{ form.week_number.errors[0] }}</div>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            {{ form.name.label(class="form-label") }}
+                            {{ form.name(class="form-control", placeholder="e.g., Match Week 1") }}
+                            {% if form.name.errors %}
+                                <div class="text-danger">{{ form.name.errors[0] }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            {{ form.predictions_open_time.label(class="form-label") }}
+                            {{ form.predictions_open_time(class="form-control", type="datetime-local") }}
+                            {% if form.predictions_open_time.errors %}
+                                <div class="text-danger">{{ form.predictions_open_time.errors[0] }}</div>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            {{ form.predictions_close_time.label(class="form-label") }}
+                            {{ form.predictions_close_time(class="form-control", type="datetime-local") }}
+                            {% if form.predictions_close_time.errors %}
+                                <div class="text-danger">{{ form.predictions_close_time.errors[0] }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card mb-4">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h5 class="card-title mb-0">Fixtures</h5>
+                        <button type="button" class="btn btn-outline-primary btn-sm" onclick="addFixture()">
+                            <i class="fas fa-plus"></i> Add Fixture
+                        </button>
+                    </div>
+                    
+                    <div id="fixtures-container">
+                        {% for fixture_form in form.fixtures %}
+                        <div class="fixture-form-group border rounded p-3 mb-3" data-index="{{ loop.index0 }}">
+                            <div class="row align-items-center">
+                                <div class="col-md-3">
+                                    {{ fixture_form.home_team.label(class="form-label") }}
+                                    {{ fixture_form.home_team(class="form-select") }}
+                                </div>
+                                <div class="col-md-1 text-center">
+                                    <strong>vs</strong>
+                                </div>
+                                <div class="col-md-3">
+                                    {{ fixture_form.away_team.label(class="form-label") }}
+                                    {{ fixture_form.away_team(class="form-select") }}
+                                </div>
+                                <!--div class="col-md-4">
+                                    {{ fixture_form.match_datetime.label(class="form-label") }}
+                                    {{ fixture_form.match_datetime(class="form-control", type="datetime-local") }}
+                                </div-->
+                                <div class="col-md-1">
+                                    <button type="button" class="btn btn-outline-danger btn-sm" onclick="removeFixture(this)" {% if loop.index0 == 0 %}style="visibility: hidden;"{% endif %}>
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+            
+            <div class="text-end">
+                <a href="{{ url_for('admin_dashboard') }}" class="btn btn-secondary me-2">Cancel</a>
+                {{ form.submit(class="btn epl-primary text-white") }}
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+
+
+
+{% block scripts %}
+
+<script>
+let fixtureIndex = {{ form.fixtures|length }};
+
+function addFixture() {
+    fetch('/api/add_fixture_form')
+        .then(response => response.text())
+        .then(html => {
+            const container = document.getElementById('fixtures-container');
+            const newFixtureHtml = html.replace(/__INDEX__/g, fixtureIndex);
+            
+            const div = document.createElement('div');
+            div.innerHTML = newFixtureHtml;
+            div.firstElementChild.dataset.index = fixtureIndex;
+            
+            container.appendChild(div.firstElementChild);
+            fixtureIndex++;
+            
+            updateFixtureNames();
+        });
+}
+
+function removeFixture(button) {
+    const fixtureGroup = button.closest('.fixture-form-group');
+    fixtureGroup.remove();
+    updateFixtureNames();
+}
+
+function updateFixtureNames() {
+    const fixtures = document.querySelectorAll('.fixture-form-group');
+    fixtures.forEach((fixture, index) => {
+        const inputs = fixture.querySelectorAll('select, input');
+        inputs.forEach(input => {
+            const name = input.getAttribute('name');
+            if (name && name.includes('fixtures-')) {
+                const newName = name.replace(/fixtures-\d+/, `fixtures-${index}`);
+                input.setAttribute('name', newName);
+                input.setAttribute('id', newName);
+            }
+        });
+        
+        const labels = fixture.querySelectorAll('label');
+        labels.forEach(label => {
+            const forAttr = label.getAttribute('for');
+            if (forAttr && forAttr.includes('fixtures-')) {
+                const newFor = forAttr.replace(/fixtures-\d+/, `fixtures-${index}`);
+                label.setAttribute('for', newFor);
+            }
+        });
+    });
+}
+
+// Set default datetime values
+document.addEventListener('DOMContentLoaded', function() {
+    const now = new Date();
+    const nextWeek = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000);
+    
+    // Set default predictions open time (now)
+    const openTimeInput = document.getElementById('predictions_open_time');
+    if (openTimeInput && !openTimeInput.value) {
+        openTimeInput.value = now.toISOString().slice(0, 16);
+    }
+    
+    // Set default predictions close time (1 week from now)
+    const closeTimeInput = document.getElementById('predictions_close_time');
+    if (closeTimeInput && !closeTimeInput.value) {
+        closeTimeInput.value = nextWeek.toISOString().slice(0, 16);
+    }
+});
+</script>
+{% endblock %}

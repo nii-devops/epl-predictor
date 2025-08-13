@@ -1,0 +1,120 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <h2>{{ match_week.name }} - Predictions</h2>
+        <p class="text-muted">Week {{ match_week.week_number }}</p>
+        
+        {% if match_week.is_predictions_open %}
+        <div class="alert alert-success">
+            <i class="fas fa-clock"></i> Predictions are open until {{ match_week.predictions_close_time.strftime('%Y-%m-%d %H:%M') }}
+        </div>
+        {% else %}
+        <div class="alert alert-warning">
+            <i class="fas fa-lock"></i> Predictions are closed for this match week.
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<div class="row">
+    {% for fixture in fixtures %}
+    <div class="col-md-6 mb-4">
+        <div class="card fixture-card">
+            <div class="card-body">
+                <h5 class="card-title text-center">
+                    {{ fixture.home_team.name if fixture.home_team else 'Unknown' }} vs {{ fixture.away_team.name if fixture.away_team else 'Unknown' }}
+                </h5>
+                <p class="text-center text-muted">
+                    {{ fixture.match_datetime.strftime('%Y-%m-%d %H:%M') }}
+                </p>
+                
+                {% if match_week.is_predictions_open %}
+                <div class="prediction-form">
+                    <form class="prediction-form-submit" data-fixture-id="{{ fixture.id }}">
+                        <div class="row align-items-center">
+                            <div class="col-4 text-center">
+                                <strong>{{ fixture.home_team.name[:3].upper() if fixture.home_team else 'UNK' }}</strong>
+                            </div>
+                            <div class="col-4 text-center">
+                                <div class="row">
+                                    <div class="col-6">
+                                        <input type="number" class="form-control text-center" name="home_score" 
+                                               min="0" max="20" 
+                                               value="{{ user_predictions[fixture.id].home_score_prediction if fixture.id in user_predictions else '' }}" 
+                                               required>
+                                    </div>
+                                    <div class="col-6">
+                                        <input type="number" class="form-control text-center" name="away_score" 
+                                               min="0" max="20" 
+                                               value="{{ user_predictions[fixture.id].away_score_prediction if fixture.id in user_predictions else '' }}" 
+                                               required>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-4 text-center">
+                                <strong>{{ fixture.away_team.name[:3].upper() if fixture.away_team else 'UNK' }}</strong>
+                            </div>
+                        </div>
+                        <div class="text-center mt-3">
+                            <button type="submit" class="btn epl-primary text-white btn-sm">
+                                {% if fixture.id in user_predictions %}Update{% else %}Submit{% endif %} Prediction
+                            </button>
+                        </div>
+                    </form>
+                </div>
+                {% elif fixture.id in user_predictions %}
+                <div class="alert alert-info text-center">
+                    Your prediction: {{ user_predictions[fixture.id].home_score_prediction }} - {{ user_predictions[fixture.id].away_score_prediction }}
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const predictionForms = document.querySelectorAll('.prediction-form-submit');
+    
+    predictionForms.forEach(form => {
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const fixtureId = form.dataset.fixtureId;
+            const formData = new FormData(form);
+            
+            fetch(`/submit_prediction/${fixtureId}`, {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    const submitBtn = form.querySelector('button[type="submit"]');
+                    submitBtn.textContent = 'Updated!';
+                    submitBtn.classList.remove('epl-primary');
+                    submitBtn.classList.add('btn-success');
+                    
+                    setTimeout(() => {
+                        submitBtn.textContent = 'Update Prediction';
+                        submitBtn.classList.remove('btn-success');
+                        submitBtn.classList.add('epl-primary');
+                    }, 2000);
+                } else {
+                    alert('Error submitting prediction: ' + (data.error || 'Unknown error'));
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Error submitting prediction');
+            });
+        });
+    });
+});
+</script>
+{% endblock %}

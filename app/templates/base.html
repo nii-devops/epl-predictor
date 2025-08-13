@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}EPL Predictions{% endblock %}</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+
+</head>
+
+
+<body>
+    <nav class="navbar navbar-expand-lg">
+        <div class="container">
+            <a class="navbar-brand" href="{{ url_for('main.index') }}">
+                <i class="fas fa-futbol"></i> EPL Predictions
+            </a>
+            
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon bg-light"></span>
+            </button>
+            
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('main.index') }}">Home</a>
+                    </li>
+                    {% if current_user.is_authenticated %}
+                        {% if current_user.is_admin %}
+                            <li class="nav-item">
+                                <a class="nav-link" href="{{ url_for('main.admin_dashboard') }}">Admin</a>
+                            </li>
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle" href="#" id="predictionsDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                    Fixtures
+                                </a>
+                                <ul class="dropdown-menu" aria-labelledby="fixturesDropdown">
+                                    
+                                    <li><a class="dropdown-item" href="{{ url_for('main.create_fixture') }}">Create Fixtures</a></li>
+                                    <li><a class="dropdown-item" href="{{ url_for('main.select_scores_matchweek') }}">Update Scores</a></li>
+                                </ul>
+                            </li>
+                        {% endif %}
+                        <!--li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('main.leaderboard') }}">Leaderboard</a>
+                        </li-->
+                        
+                        
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" id="predictionsDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                Predictions
+                            </a>
+                            <ul class="dropdown-menu" aria-labelledby="predictionsDropdown">
+                                <li><a class="dropdown-item" href="{{ url_for('main.predict') }}">Predict Matches</a></li>
+                                <li><a class="dropdown-item" href="{{ url_for('main.view_prediction') }}">View Predictions</a></li>
+                                <li><a class="dropdown-item" href="#">Edit Predictions</a></li>
+                            </ul>
+                        </li>
+                        
+                        <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle" href="#" id="predictionsDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                    Leaderboard
+                                </a>
+                                <ul class="dropdown-menu" aria-labelledby="fixturesDropdown">
+                                    
+                                    <li><a class="dropdown-item" href="{{ url_for('main.select_weekly_leaderboard_matchweek') }}">Weekly Leaderboard</a></li>
+                                    <li><a class="dropdown-item" href="{{ url_for('main.leaderboard') }}">Leaderboard</a></li>
+                                </ul>
+                        </li>
+                        
+                    {% endif %}
+                </ul>
+                
+                <ul class="navbar-nav">
+                    {% if current_user.is_authenticated %}
+
+                    <li class="nav-item">
+                        <a class="nav-link" href="#"> {{ current_user.name }}</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('main.logout') }}">Logout</a>
+                    </li>
+                    {% else %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('main.login') }}">Login</a>
+                    </li>
+                    {% endif %}
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <main class="container mt-4">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ 'danger' if category == 'error' else category }} alert-dismissible fade show" role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        {% block content %}
+        
+        
+        
+        {% endblock %}
+    </main>
+
+    <footer class="mt-5 py-3">
+        <div class="container text-center">
+            <p class="footer-text mb-0">&copy; 2024 EPL Predictions. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+
+    {% block scripts %}
+        <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            setTimeout(function() {
+                document.querySelectorAll('.alert').forEach(function(alertElement) {
+                    if (alertElement.classList.contains('show')) {
+                        const alertInstance = bootstrap.Alert.getOrCreateInstance(alertElement);
+                        alertInstance.close();
+                    }
+                });
+            }, 5000); // 5 seconds
+        });
+        </script>
+    {% endblock %}
+
+</body>
+</html>

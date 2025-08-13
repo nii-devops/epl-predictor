@@ -1,0 +1,75 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual environment
+venv/
+env/
+ENV/
+virt/
+.venv/
+.python-version
+
+# Flask instance folder (if using app factory pattern)
+instance/
+backup/
+test/
+app/templates/backup/
+
+# Other folders
+
+
+# Logs and local databases
+*.log
+*.sqlite3
+*.db
+
+# Python egg and distribution files
+*.egg
+*.egg-info/
+dist/
+build/
+.eggs/
+
+# Cache
+.cache/
+pip-wheel-metadata/
+*.bak
+
+# VS Code settings
+.vscode/
+
+# PyCharm settings
+.idea/
+
+# macOS
+.DS_Store
+
+# Test & coverage outputs
+htmlcov/
+.coverage
+.tox/
+.nox/
+.pytest_cache/
+
+# Environment variable and secrets files
+.env
+.env.*
+
+# Migrations (if using Flask-Migrate/Alembic)
+migrations/
+
+# mypy
+.mypy_cache/
+
+# Gunicorn/PID
+*.pid
+
+# files
+db_migrations.txt
+app.py
+debug_structure.py
+minimal_app.py
+git_commands.txt
+

@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% from 'bootstrap5/form.html' import render_form %}
+
+
+
+{% block content %}
+
+    <div class="container mt-5 col-md-6 col-sm-12">
+        <div class="d-flex flex-column justify-content-center align-items-center">
+            
+            <div class="form-control">
+                <div class="form-header py-3 mb-3">
+                    <h2> {{ heading }} </h2>
+                </div>
+                {{render_form(form) }}
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+
+
+
