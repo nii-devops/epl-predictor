@@ -441,7 +441,7 @@ def create_season():
             except Exception as e:
                 #error = jsonify({'error': str(e)}), 500
                 flash(f'Error: {e}', 'danger')
-    return render_template('admin/create_season.html', form=form)
+    return render_template('admin/form.html', form=form, heading='Create Season', title='Create Season')
 
 
 
