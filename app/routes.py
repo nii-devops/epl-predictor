@@ -67,8 +67,8 @@ def login():
 # Placeholders for now:
 @bp.route('/authorize/google')
 def google_auth():
-    #redirect_uri = url_for('main.google_callback', _external=True, _scheme='http')
-    redirect_uri = os.getenv('REDIRECT_URI')  # Use environment variable if set
+    redirect_uri = url_for('main.google_callback', _external=True)
+    #redirect_uri = os.getenv('REDIRECT_URI')  # Use environment variable if set
     return oauth.google.authorize_redirect(redirect_uri)
 
 
