@@ -27,9 +27,12 @@ def ensure_default_data():
 
 # Only run setup if we're starting the server (not during migrations)
 if __name__ == '__main__':
-    ensure_default_data()
+    with app.app_context():
+        # Create tables if they don't exist
+        db.create_all()
+    #ensure_default_data()
     print("🚀 Starting EPL Predictions App...")
-    app.run(debug=True, host='0.0.0.0', port=5000)
+    app.run(debug=True, host='0.0.0.0', port=8080)
 
 # For production/deployment, you might want to run this check
 # even when imported (uncomment the line below)

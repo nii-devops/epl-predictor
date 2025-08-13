@@ -47,10 +47,11 @@ def fetch_fixtures_from_sky_sports():
 """
 
 
-now = datetime.utcnow()
+
 
 @bp.route('/')
 def index():
+    now = datetime.utcnow()
     active_match_weeks = MatchWeek.query.filter(MatchWeek.predictions_close_time > now).all()
     return render_template('index.html', active_match_weeks=active_match_weeks)
 
@@ -67,6 +68,7 @@ def login():
 @bp.route('/authorize/google')
 def google_auth():
     redirect_uri = url_for('main.google_callback', _external=True)
+    redirect_uri = os.getenv('REDIRECT_URI', redirect_uri)  # Use environment variable if set
     return oauth.google.authorize_redirect(redirect_uri)
 
 
@@ -164,6 +166,28 @@ def admin_dashboard():
     teams = Team.query.order_by(Team.id).all()
     return render_template('admin/dashboard.html', title='Admin Panel', now=now,
     users=users, match_weeks=match_weeks, seasons=seasons, teams=teams)
+
+
+@bp.route('/create_weeks', methods=['GET', 'POST'])
+@login_required
+def create_weeks():
+    if not current_user.is_admin:
+        flash('Access denied. Admin privileges required.', 'error')
+        return redirect(url_for('main.index'))
+    
+    # Check if weeks already exist
+    for week_num in range(1, 39):
+        if Week.query.filter_by(week_number=week_num).first():
+            flash(f'Week {week_num} already exists. Skipping creation.', 'warning')
+            continue    
+        
+        week = Week(week_number=week_num)   
+        db.session.add(week)
+        
+    db.session.commit()
+    flash('Weeks created successfully!', 'success')
+    return redirect(url_for('main.admin_dashboard'))
+
 
 
 @bp.route('/admin/teams/populate', methods=['GET', 'POST'])

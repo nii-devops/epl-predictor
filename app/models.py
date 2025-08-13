@@ -137,7 +137,7 @@ class MatchWeekPoint(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
 
-    season_id = db.Column(db.Integer, db.ForeignKey('season.id'), nullable=True)
+    #season_id = db.Column(db.Integer, db.ForeignKey('season.id'), nullable=True)
     match_week_id = db.Column(db.Integer, db.ForeignKey('match_week.id'), nullable=False)
 
     rank = db.Column(db.Integer, nullable=True)
