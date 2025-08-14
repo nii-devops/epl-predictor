@@ -1,0 +1,31 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: Flask app deployed to AWS Lambda + API Gateway
+
+Globals:
+  Function:
+    Timeout: 30
+    MemorySize: 512
+
+Resources:
+  FlaskFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: my-flask-function
+      Handler: handler.lambda_handler
+      Runtime: python3.11
+      CodeUri: .
+      Events:
+        Api:
+          Type: Api
+          Properties:
+            Path: /{proxy+}
+            Method: ANY
+      Environment:
+        Variables:
+          FLASK_ENV: production
+
+Outputs:
+  ApiUrl:
+    Description: "Invoke URL"
+    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/"

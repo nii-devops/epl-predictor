@@ -1,0 +1,102 @@
+
+
+html, body {
+    height: 100%;
+    min-height: 100vh;
+}
+
+body {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+main.container {
+    flex: 1 0 auto;
+}
+
+#login-card {
+    padding-top: 50px;
+    padding-bottom: 50px;
+    background: linear-gradient(135deg, #38003c 0%, #00ff87 100%);
+}
+
+footer {
+    flex-shrink: 0;
+    background-color: #2d002e;
+}
+
+.footer-text {
+    color: white;
+}
+
+.navbar {
+    background-color: #2d002e;
+}
+
+.navbar-nav li a {
+    color: aliceblue;
+}
+
+.navbar-nav li a:hover {
+    color: orangered;
+    transform: scale(1.1);
+}
+
+.navbar-brand {
+    font-weight: bold;
+    color: white !important;
+}
+
+.epl-primary {
+    background-color: #38003c;
+    border-color: #38003c;
+}
+
+.epl-primary:hover {
+    background-color: #2d002e;
+    border-color: #2d002e;
+}
+
+#prediction-form-header {
+    background-color: #2d002e;
+}
+
+.form-header {
+    background-color: #2d002e;
+    color: white;
+    padding: 10px;
+    border-radius: 5px;
+}
+
+.card-header {
+    background-color: #2d002e;
+}
+
+.prediction-table-header {
+    background-color: #2d002e;
+}
+
+.dropdown-menu {
+    background-color: #2d002e;
+}
+
+.fixture-card {
+    transition: transform 0.2s;
+}
+
+.fixture-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+.prediction-form {
+    background: #f8f9fa;
+    border-radius: 8px;
+    padding: 15px;
+    margin-top: 10px;
+}
+
+
+
+

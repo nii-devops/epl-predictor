@@ -58,7 +58,7 @@ class CreateMatchWeekForm(FlaskForm):
     predictions_open_time = DateTimeField('Predictions Open Time', validators=[DataRequired()], format='%Y-%m-%dT%H:%M')
     predictions_close_time = DateTimeField('Predictions Close Time', validators=[DataRequired()], format='%Y-%m-%dT%H:%M')
     fixtures = FieldList(FormField(FixtureForm), min_entries=1, max_entries=20)
-    submit = SubmitField('Submit')
+    submit = SubmitField('Create Match Week')
 
 
 class PredictionForm(FlaskForm):
@@ -67,7 +67,7 @@ class PredictionForm(FlaskForm):
     home_score = IntegerField('Home Score', validators=[DataRequired()])
     away_team_id = IntegerField('Away Team', validators=[DataRequired()])
     away_score = IntegerField('Away Score', validators=[DataRequired(), NumberRange(min=0, max=20)])
-    submit = SubmitField('Submit')
+    submit = SubmitField('Submit Prediction')
     
 
 
@@ -104,7 +104,7 @@ class MatchWeekUpdateForm(FlaskForm):
     season = SelectField('Season', validators=[DataRequired()])
     predictions_open_time = DateTimeLocalField('Predictions Open Time', validators=[DataRequired()], format='%Y-%m-%dT%H:%M')
     predictions_close_time = DateTimeLocalField('Predictions Close Time', validators=[DataRequired()], format='%Y-%m-%dT%H:%M')
-    submit = SubmitField('Submit')
+    submit = SubmitField('Create Match Week')
 
 
 class MatchRowForm(FlaskForm):
@@ -128,19 +128,19 @@ class DynamicMatchesForm(FlaskForm):
     The number of matches in the list is determined by the initial user input.
     """
     matches = FieldList(FormField(MatchRowForm), min_entries=1)
-    submit = SubmitField('Submit')
+    submit = SubmitField('Submit Scores')
 
 
 class ViewGameWeekPredictionForm(FlaskForm):
     season = SelectField('Season', validators=[DataRequired()], coerce=int)
     match_week = SelectField('Match Week', validators=[DataRequired()], coerce=int)
-    submit = SubmitField('Submit')
+    submit = SubmitField('View Predictions')
 
         
 class SelectMatchWeekForm(FlaskForm):
     season = SelectField('Season', validators=[DataRequired()], coerce=int)
     match_week = SelectField('Match Week', validators=[DataRequired()], coerce=int)
-    submit = SubmitField('Submit')
+    submit = SubmitField('View Predictions')
 
 
 

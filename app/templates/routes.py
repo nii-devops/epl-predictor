@@ -1062,10 +1062,7 @@ def generate_matchweek_points(match_week_id):
     match_week = MatchWeek.query.get_or_404(match_week_id)
 
     fixtures = Fixture.query.filter_by(match_week_id=match_week_id).all()
-    if fixtures[0].home_score is None or fixtures[0].away_score is None:
-        flash('Fixtures not updated with results.', 'info')
-        return redirect(request.referrer)
-
+    
     if not fixtures:
         flash('No fixtures found', 'info')
         return redirect(url_for('main.admin_dashboard'))
@@ -1079,15 +1076,8 @@ def generate_matchweek_points(match_week_id):
         print(f"{user.email}")
         user_score = 0
         user_predictions = Prediction.query.filter_by(user_id=user_id).order_by(Prediction.id).all()
-        
-        # Check if user has any predictions for this match week. If not, continue to next user
-        if not user_predictions:
-            continue
-        
         for prediction in user_predictions:
-
             fixture = Fixture.query.filter_by(home_team_id=prediction.home_team_id, away_team_id=prediction.away_team_id).first()
-
             if fixture.home_score == prediction.home_score_prediction and fixture.away_score == prediction.away_score_prediction:
                 user_score += 5
             elif (fixture.home_score == fixture.away_score and prediction.home_score_prediction == prediction.away_score_prediction) or (fixture.home_score < fixture.away_score and 
