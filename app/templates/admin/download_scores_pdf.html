@@ -1,0 +1,36 @@
+{% extends 'base.html' %}
+
+{% block title %}Download Scores PDF - EPL Predictions{% endblock %}
+
+{% block content %}
+
+<h2 style="text-align:center;">{{ heading }}</h2>
+    <h4 style="text-align:center;">{{ subheading }}</h4>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Rank</th>
+                <th>Name</th>
+                <th>Nickname</th>
+                <th>Points</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for score in weekly_scores %}
+            <tr>
+                <td>{{ loop.index }}</td>
+                {% for user in users %}
+                    {% if score.user_id == user.id %}
+                        <td>{{ user.name }}</td>
+                        <td>{{ user.nickname }}</td>
+                    {% endif %}
+                {% endfor %}
+                <td>{{ score.points }}</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+
+{% endblock %}
+

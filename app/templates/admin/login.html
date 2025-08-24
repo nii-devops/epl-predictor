@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+{% from 'bootstrap5/form.html' import render_form %}
+
+
+
+{% block content %}
+
+    <div class="container mt-5 col-md-6 col-sm-12">
+        <div class="d-flex flex-column justify-content-center align-items-center">
+            
+            <div class="form-control">
+                <div class="form-header py-3 mb-3">
+                    <h2> {{ heading }} </h2>
+                </div>
+                {{render_form(form) }}
+                <br>
+                <div>
+                    Forgotten password? <a href="{{url_for('main.request_password_reset')}}">Reset Password</a>
+                </div>
+                
+                
+                <hr class="py-2">
+                <div class="mb-3">
+                    Do Not have an account? <a href="{{url_for('main.register')}}">Register</a>
+                </div>
+            </div>
+
+        </div>    
+        
+    </div>
+{% endblock %}
+
+
+

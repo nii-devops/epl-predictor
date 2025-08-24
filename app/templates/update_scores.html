@@ -1,0 +1,116 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <h3>Game Week {{match_week.week.week_number}} Results</h3>
+    </div>
+</div>
+
+<div class="row">
+    <div class="card-body">
+        <!-- Fixed: Form action now points to the correct route -->
+        <form method="POST" action="{{ url_for('main.update_scores', week_id=match_week.week_id, season_id=match_week.season_id) }}">
+            {{ form.hidden_tag() }}
+           
+            {% for match in form.matches %}
+            <div class="card mb-4">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0">
+                        <i class="fas fa-play me-2"></i>
+                        Match {{ loop.index }}
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row g-3">
+                        <!-- Home Team -->
+                        <div class="col-md-3 col-sm-3">
+                            <label for="{{ match.home_team.id }}" class="form-label fw-bold">
+                                {{ match.home_team.label }}
+                            </label>
+                            {{ match.home_team(class="form-control", readonly="readonly") }}
+                            {% if match.home_team.errors %}
+                                <div class="text-danger small mt-1">
+                                    {% for error in match.home_team.errors %}
+                                        <div>{{ error }}</div>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                       
+                        <!-- Home Score -->
+                        <div class="col-md-2 col-sm-2">
+                            <label for="{{ match.home_score.id }}" class="form-label fw-bold">
+                                {{ match.home_score.label }}
+                            </label>
+                            {{ match.home_score(class="form-control text-center", min="0", max="50") }}
+                            {% if match.home_score.errors %}
+                                <div class="text-danger small mt-1">
+                                    {% for error in match.home_score.errors %}
+                                        <div>{{ error }}</div>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                       
+                        <!-- VS Divider -->
+                        <div class="col-md-2 col-sm-2 d-flex align-items-end justify-content-center">
+                            <span class="fw-bold fs-4 text-muted mb-2">VS</span>
+                        </div>
+                       
+                        <!-- Away Score -->
+                        <div class="col-md-2 col-sm-2">
+                            <label for="{{ match.away_score.id }}" class="form-label fw-bold">
+                                {{ match.away_score.label }}
+                            </label>
+                            {{ match.away_score(class="form-control text-center", min="0", max="50") }}
+                            {% if match.away_score.errors %}
+                                <div class="text-danger small mt-1">
+                                    {% for error in match.away_score.errors %}
+                                        <div>{{ error }}</div>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                       
+                        <!-- Away Team -->
+                        <div class="col-md-3 col-sm-3">
+                            <label for="{{ match.away_team.id }}" class="form-label fw-bold">
+                                {{ match.away_team.label }}
+                            </label>
+                            {{ match.away_team(class="form-control", readonly="readonly") }}
+                            {% if match.away_team.errors %}
+                                <div class="text-danger small mt-1">
+                                    {% for error in match.away_team.errors %}
+                                        <div>{{ error }}</div>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+
+            <div class="d-flex justify-content-center mt-4">
+                {{ form.submit(class="btn btn-primary px-5") }}
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+{{ super() }}
+<script>
+    // Debug script to check form submission
+    document.querySelector('form').addEventListener('submit', function(e) {
+        console.log('Form is being submitted');
+        const formData = new FormData(this);
+        console.log('Form data:');
+        for (let [key, value] of formData.entries()) {
+            console.log(key, value);
+        }
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+{% from 'bootstrap5/form.html' import render_form %}
+
+
+
+{% block content %}
+
+    <div class="container mt-5 col-md-6 col-sm-12">
+        <div class="d-flex flex-column justify-content-center align-items-center">
+            
+            <form method="POST" action="{{ url_for('main.telephone_number') }}" class="shadow-lg">
+                {{ form.hidden_tag() }}
+            
+                <div class="form-header py-3 mb-3">
+                    <h2> {{ heading }} </h2>
+                </div>
+
+                <div class="row px-5">
+
+                    <div class="col-md-4 col-sm-4 col-xs-4">
+                        <label class="form-label fw-bold">
+                            {{ form.country_code.label }}
+                        </label>
+                        {{ form.country_code(class="form-control", ) }}
+                        {% if form.country_code.errors %}
+                            <div class="text-danger small mt-1">
+                                {% for error in form.country_code.errors %}
+                                    <div>{{ error }}</div>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="col-md-8 col-sm-8 col-xs-8">
+                        <label class="form-label fw-bold">
+                            {{ form.phone_number.label }}
+                        </label>
+                        {{ form.phone_number(class="form-control text-center") }}
+                        {% if form.phone_number.errors %}
+                            <div class="text-danger small mt-1">
+                                {% for error in form.phone_number.errors %}
+                                    <div>{{ error }}</div>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    <div class="d-flex justify-content-center mt-4 mb-3">
+                        {{ form.submit(class="btn btn-primary px-5") }}
+                    </div>
+
+                </div>
+
+            </form>
+        </div>
+    </div>
+{% endblock %}
+
+
+

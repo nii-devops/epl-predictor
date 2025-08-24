@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Telephone Number Form</title>
+</head>
+<body>
+    <h1>Enter your Telephone Number</h1>
+    <form method="POST">
+        {{ form.hidden_tag() }}
+        <p>
+            {{ form.country_code.label }}<br>
+            {{ form.country_code }}
+        </p>
+        <p>
+            {{ form.phone_number.label }}<br>
+            {{ form.phone_number }}
+        </p>
+        <p>{{ form.submit }}</p>
+    </form>
+</body>
+</html>

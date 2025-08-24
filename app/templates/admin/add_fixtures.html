@@ -1,0 +1,121 @@
+{% extends "base.html" %}
+{% from 'bootstrap5/form.html' import render_form %}
+
+{% block title %}Create Fixtures{% endblock %}
+{% block content %}
+<section class="login-section d-flex align-items-center justify-content-center" style="min-height: 100vh;">
+    <div class="container d-flex align-items-center justify-content-center" style="min-height: 80vh;">
+        <div class="row justify-content-center align-items-center w-100">
+            <div class="col-lg-7 col-md-9">
+                <div class="login-card glass-card p-5">
+                    <div class="text-center mb-5">
+                        <div class="login-logo">
+                            <i class="fas fa-shield-alt"></i>
+                        </div>
+                        <h2 class="login-title text-white fw-bold mb-3">
+                            Create Match Week 
+                        </h2>
+                        <!-- Single form for both MatchWeekForm and FixtureForm -->
+                        <form method="POST" action="" id="fixtures-form">
+                            {{ matchweek_form.hidden_tag() }}
+
+                            <div class="form-group">
+                                {{ matchweek_form.season.label(class="form-label") }}
+                                {{ matchweek_form.season(class="form-control", placeholder="Select Season") }}
+                                {% if matchweek_form.season.errors %}
+                                    <div class="text-danger">{{ matchweek_form.season.errors[0] }}</div>
+                                {% endif %}
+
+                                {{ matchweek_form.week_number.label(class="form-label") }}
+                                {{ matchweek_form.week_number(class="form-control", placeholder="Enter Week Number") }}
+                                {% if matchweek_form.week_number.errors %}
+                                    <div class="text-danger">{{ matchweek_form.week_number.errors[0] }}</div>
+                                {% endif %}
+
+                                {{ matchweek_form.predictions_open_time.label(class="form-label") }}
+                                {{ matchweek_form.predictions_open_time(class="form-control", type="datetime-local") }}
+                                {% if matchweek_form.predictions_open_time.errors %}
+                                    <div class="text-danger">{{ matchweek_form.predictions_open_time.errors[0] }}</div>
+                                {% endif %}
+
+                                {{ matchweek_form.predictions_close_time.label(class="form-label") }}
+                                {{ matchweek_form.predictions_close_time(class="form-control", type="datetime-local") }}
+                                {% if matchweek_form.predictions_close_time.errors %}
+                                    <div class="text-danger">{{ matchweek_form.predictions_close_time.errors[0] }}</div>
+                                {% endif %}
+                            </div>
+
+                            <div id="fixtures-list">
+                                <div class="row fixture-pair" data-index="0">
+                                    <div class="col-md-6 col-sm-6">
+                                        <div class="form-group">
+                                            {{ fixture_form.home_team.label(class="form-label") }}
+                                            {{ fixture_form.home_team(class="form-control", id="home_team-0") }}
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6 col-sm-6">
+                                        <div class="form-group">
+                                            {{ fixture_form.away_team.label(class="form-label") }}
+                                            {{ fixture_form.away_team(class="form-control", id="away_team-0") }}
+                                        </div>
+                                    </div>
+                                    <div class="col-12 text-end">
+                                        <button type="button" class="btn btn-sm btn-danger remove-fixture-btn" style="display:none;">&#10005;</button>
+                                    </div>
+                                </div>
+                            </div>
+                            <button type="button" class="btn btn-secondary mt-3" id="add-fixture-btn">Add team</button>
+                            <div class="mt-3">
+                                <button type="submit" class="btn btn-primary">Submit</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>  
+            </div>
+        </div>  
+    </div>
+</section>
+
+<script>
+let fixtureIndex = 1;
+
+// Fix the name attributes of the first pair on page load
+window.addEventListener('DOMContentLoaded', function() {
+    const firstPair = document.querySelector('.fixture-pair');
+    if (firstPair) {
+        const selects = firstPair.querySelectorAll('select');
+        if (selects.length >= 2) {
+            selects[0].setAttribute('name', 'home_team-0');
+            selects[1].setAttribute('name', 'away_team-0');
+        }
+    }
+});
+
+document.getElementById('add-fixture-btn').addEventListener('click', function() {
+    const fixturesList = document.getElementById('fixtures-list');
+    const firstPair = fixturesList.querySelector('.fixture-pair');
+    const newPair = firstPair.cloneNode(true);
+
+    // Update names and values
+    newPair.setAttribute('data-index', fixtureIndex);
+    const selects = newPair.querySelectorAll('select');
+    if (selects.length >= 2) {
+        selects[0].setAttribute('name', 'home_team-' + fixtureIndex);
+        selects[0].selectedIndex = 0;
+        selects[1].setAttribute('name', 'away_team-' + fixtureIndex);
+        selects[1].selectedIndex = 0;
+    }
+
+    // Show remove button
+    const removeBtn = newPair.querySelector('.remove-fixture-btn');
+    removeBtn.style.display = 'inline-block';
+    removeBtn.onclick = function() {
+        newPair.remove();
+    };
+
+    fixturesList.appendChild(newPair);
+    fixtureIndex++;
+});
+</script>
+{% endblock %}
+

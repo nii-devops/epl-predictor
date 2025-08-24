@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ title }}</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .table-container {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        .table-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 10px 10px 0 0;
+        }
+        .action-btn {
+            border-radius: 15px;
+            margin: 1px;
+        }
+        .primary-key {
+            background-color: #fff3cd !important;
+        }
+        .record-actions {
+            white-space: nowrap;
+        }
+        .pagination-container {
+            background: white;
+            border-radius: 0 0 10px 10px;
+            border-top: 1px solid #dee2e6;
+        }
+    </style>
+</head>
+<body class="bg-light">
+    <div class="container-fluid py-4">
+        <!-- Breadcrumb -->
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item">
+                    <a href="{{ url_for('admin.admin_dashboard') }}">Admin</a>
+                </li>
+                <li class="breadcrumb-item">
+                    <a href="{{ url_for('admin.list_tables') }}">Tables</a>
+                </li>
+                <li class="breadcrumb-item active">{{ table_name }}</li>
+            </ol>
+        </nav>
+
+        <!-- Header -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h1 class="h2 mb-0">
+                            <i class="fas fa-table me-2"></i>{{ table_name }}
+                        </h1>
+                        <small class="text-muted">Model: {{ model_name }}</small>
+                    </div>
+                    <div>
+                        <a href="{{ url_for('admin.add_record', table_name=table_name) }}" 
+                           class="btn btn-success action-btn">
+                            <i class="fas fa-plus me-1"></i>Add Record
+                        </a>
+                        <a href="{{ url_for('admin.export_table', table_name=table_name) }}" 
+                           class="btn btn-info action-btn"
+                           onclick="exportTable(); return false;">
+                            <i class="fas fa-download me-1"></i>Export
+                        </a>
+                        <button onclick="location.reload()" class="btn btn-secondary action-btn">
+                            <i class="fas fa-sync-alt me-1"></i>Refresh
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Table Stats -->
+        <div class="row mb-3">
+            <div class="col-12">
+                <div class="card table-header">
+                    <div class="card-body py-2">
+                        <div class="row text-center">
+                            <div class="col-md-3">
+                                <strong>Total Records: {{ records.total }}</strong>
+                            </div>
+                            <div class="col-md-3">
+                                <strong>Columns: {{ columns|length }}</strong>
+                            </div>
+                            <div class="col-md-3">
+                                <strong>Page: {{ records.page }} of {{ records.pages }}</strong>
+                            </div>
+                            <div class="col-md-3">
+                                <strong>Primary Keys: 
+                                {% for pk in primary_keys %}
+                                    <span class="badge bg-warning text-dark">{{ pk }}</span>
+                                {% endfor %}
+                                </strong>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Data Table -->
+        <div class="row">
+            <div class="col-12">
+                <div class="table-container">
+                    {% if records.items %}
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0">
+                            <thead class="table-dark sticky-top">
+                                <tr>
+                                    {% for column in columns %}
+                                    <th class="{% if column in primary_keys %}primary-key{% endif %}">
+                                        {{ column }}
+                                        {% if column in primary_keys %}
+                                            <i class="fas fa-key ms-1"></i>
+                                        {% endif %}
+                                    </th>
+                                    {% endfor %}
+                                    <th width="120">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for record in records.items %}
+                                <tr>
+                                    {% for column in columns %}
+                                    <td class="{% if column in primary_keys %}primary-key{% endif %}">
+                                        {% set value = record[column] %}
+                                        {% if value is none %}
+                                            <span class="text-muted fst-italic">NULL</span>
+                                        {% elif value is boolean %}
+                                            <span class="badge {% if value %}bg-success{% else %}bg-danger{% endif %}">
+                                                {{ value }}
+                                            </span>
+                                        {% elif value.__class__.__name__ == 'datetime' %}
+                                            <small>{{ value.strftime('%Y-%m-%d %H:%M:%S') }}</small>
+                                        {% else %}
+                                            {% if value|string|length > 50 %}
+                                                <span title="{{ value }}">{{ value|string|truncate(50) }}</span>
+                                            {% else %}
+                                                {{ value }}
+                                            {% endif %}
+                                        {% endif %}
+                                    </td>
+                                    {% endfor %}
+                                    <td class="record-actions">
+                                        {% set record_id = record[primary_keys[0]] %}
+                                        <div class="btn-group" role="group">
+                                            <a href="{{ url_for('admin.edit_record', table_name=table_name, record_id=record_id) }}" 
+                                               class="btn btn-sm btn-outline-primary" 
+                                               title="Edit">
+                                                <i class="fas fa-edit"></i>
+                                            </a>
+                                            <button class="btn btn-sm btn-outline-danger" 
+                                                    onclick="confirmDelete({{ record_id }})" 
+                                                    title="Delete">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Pagination -->
+                    <div class="pagination-container p-3">
+                        <nav aria-label="Table pagination">
+                            {{ render_pagination(records, 'admin.view_table', table_name=table_name) }}
+                        </nav>
+                    </div>
+
+                    {% else %}
+                    <div class="text-center py-5">
+                        <i class="fas fa-inbox fa-3x text-muted mb-3"></i>
+                        <h4 class="text-muted">No Records Found</h4>
+                        <p class="text-muted">This table is empty.</p>
+                        <a href="{{ url_for('admin.add_record', table_name=table_name) }}" 
+                           class="btn btn-primary">
+                            <i class="fas fa-plus me-1"></i>Add First Record
+                        </a>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Delete Confirmation Modal -->
+    <div class="modal fade" id="deleteModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header bg-danger text-white">
+                    <h5 class="modal-title">
+                        <i class="fas fa-exclamation-triangle me-2"></i>Confirm Delete
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Are you sure you want to delete this record?</p>
+                    <p class="text-danger"><strong>This action cannot be undone.</strong></p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <form id="deleteForm" method="POST" style="display: inline;">
+                        <button type="submit" class="btn btn-danger">
+                            <i class="fas fa-trash me-1"></i>Delete
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Export Modal -->
+    <div class="modal fade" id="exportModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Export {{ table_name }} Data</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div id="exportContent">
+                        <div class="text-center">
+                            <div class="spinner-border" role="status">
+                                <span class="visually-hidden">Loading...</span>
+                            </div>
+                            <p class="mt-2">Preparing export...</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary" id="downloadBtn" style="display:none;">
+                        <i class="fas fa-download me-1"></i>Download JSON
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+    <script>
+        function confirmDelete(recordId) {
+            const form = document.getElementById('deleteForm');
+            form.action = `{{ url_for('admin.delete_record', table_name=table_name, record_id=0) }}`.replace('0', recordId);
+            
+            const modal = new bootstrap.Modal(document.getElementById('deleteModal'));
+            modal.show();
+        }
+
+        function exportTable() {
+            const modal = new bootstrap.Modal(document.getElementById('exportModal'));
+            const exportContent = document.getElementById('exportContent');
+            const downloadBtn = document.getElementById('downloadBtn');
+            
+            // Reset modal
+            exportContent.innerHTML = `
+                <div class="text-center">
+                    <div class="spinner-border" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                    <p class="mt-2">Exporting {{ table_name }} data...</p>
+                </div>
+            `;
+            downloadBtn.style.display = 'none';
+            
+            modal.show();
+            
+            // Fetch export data
+            fetch('{{ url_for("admin.export_table", table_name=table_name) }}')
+                .then(response => response.json())
+                .then(data => {
+                    exportContent.innerHTML = `
+                        <div class="alert alert-success">
+                            <h6><i class="fas fa-check me-2"></i>Export Successful</h6>
+                            <p>Table: <strong>${data.table}</strong></p>
+                            <p>Total Records: <strong>${data.count}</strong></p>
+                        </div>
+                        <div class="form-group">
+                            <label>Preview (First 100 characters):</label>
+                            <textarea class="form-control" rows="6" readonly>${JSON.stringify(data, null, 2).substring(0, 500)}...</textarea>
+                        </div>
+                    `;
+                    
+                    downloadBtn.style.display = 'block';
+                    downloadBtn.onclick = function() {
+                        downloadJSON(data, `{{ table_name }}_export.json`);
+                    };
+                })
+                .catch(error => {
+                    exportContent.innerHTML = `
+                        <div class="alert alert-danger">
+                            <h6><i class="fas fa-exclamation-triangle me-2"></i>Export Failed</h6>
+                            <p>Error: ${error.message}</p>
+                        </div>
+                    `;
+                });
+        }
+
+        function downloadJSON(data, filename) {
+            const blob = new Blob([JSON.stringify(data, null, 2)], {type: 'application/json'});
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = filename;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            window.URL.revokeObjectURL(url);
+        }
+
+        {% macro render_pagination(pagination, endpoint, **kwargs) %}
+        <ul class="pagination justify-content-center mb-0">
+            {% if pagination.has_prev %}
+                <li class="page-item">
+                    <a class="page-link" href="{{ url_for(endpoint, page=1, **kwargs) }}">
+                        <i class="fas fa-angle-double-left"></i>
+                    </a>
+                </li>
+                <li class="page-item">
+                    <a class="page-link" href="{{ url_for(endpoint, page=pagination.prev_num, **kwargs) }}">
+                        <i class="fas fa-angle-left"></i>
+                    </a>
+                </li>
+            {% endif %}
+            
+            {% for page_num in pagination.iter_pages(left_edge=2, right_edge=2, left_current=2, right_current=2) %}
+                {% if page_num %}
+                    {% if page_num != pagination.page %}
+                        <li class="page-item">
+                            <a class="page-link" href="{{ url_for(endpoint, page=page_num, **kwargs) }}">{{ page_num }}</a>
+                        </li>
+                    {% else %}
+                        <li class="page-item active">
+                            <span class="page-link">{{ page_num }}</span>
+                        </li>
+                    {% endif %}
+                {% else %}
+                    <li class="page-item disabled">
+                        <span class="page-link">...</span>
+                    </li>
+                {% endif %}
+            {% endfor %}
+            
+            {% if pagination.has_next %}
+                <li class="page-item">
+                    <a class="page-link" href="{{ url_for(endpoint, page=pagination.next_num, **kwargs) }}">
+                        <i class="fas fa-angle-right"></i>
+                    </a>
+                </li>
+                <li class="page-item">
+                    <a class="page-link" href="{{ url_for(endpoint, page=pagination.pages, **kwargs) }}">
+                        <i class="fas fa-angle-double-right"></i>
+                    </a>
+                </li>
+            {% endif %}
+        </ul>
+        {% endmacro %}
+    </script>
+</body>
+</html>

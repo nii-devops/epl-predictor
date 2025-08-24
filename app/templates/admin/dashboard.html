@@ -1,0 +1,385 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <h2><i class="fas fa-cogs"></i> Admin Dashboard</h2>
+        <p class="text-muted">Manage match weeks and fixtures</p>
+    </div>
+</div>
+
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">Quick Actions</h5>
+                <a href="{{ url_for('main.create_fixture') }}" class="btn epl-primary text-white me-2">
+                    <i class="fas fa-plus"></i> Create Match Week
+                </a>
+                <!--button class="btn btn-success" onclick="importFixtures()">
+                    <i class="fas fa-download"></i> Import from Sky Sports
+                </button-->
+                <a href="{{ url_for('main.create_season') }}" class="btn btn-outline-info me-2">
+                    <i class="fas fa-plus"></i> Create Season
+                </a>
+                <a href="{{ url_for('main.create_weeks') }}" class="btn btn-outline-secondary me-2">
+                    <i class="fas fa-plus"></i> Create Weeks
+                </a>
+                <a href="{{ url_for('main.populate_teams') }}" class="btn btn-outline-primary me-2">
+                    <i class="fas fa-plus"></i> Populate Teams
+                </a>
+
+
+                
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-12">
+        <h3>Match Weeks</h3>
+        {% if match_weeks %}
+            {% for match_week in match_weeks|reverse %}
+            <div class="card mb-3">
+                <div class="card-body">
+                    <div class="row align-items-center">
+                        <div class="col-md-8">
+                            <h5 class="card-title">
+                                Match Week {{ match_week.week.week_number }}
+                                
+                                {% if match_week.predictions_open_time < now < match_week.predictions_close_time %}
+                                    <span class="badge bg-success">Active</span>
+                                {% endif %}
+                            </h5>
+                            <p class="card-text">
+                                <small class="text-muted">
+                                    Week {{ match_week.week_number }} | 
+                                    {{ match_week.fixtures|length }} fixtures | 
+                                    Predictions: {{ match_week.predictions_open_time.strftime('%Y-%m-%d %H:%M') }} - 
+                                    {{ match_week.predictions_close_time.strftime('%Y-%m-%d %H:%M') }}
+                                </small>
+                            </p>
+                        </div>
+                        <div class="col-md-4 text-end">
+                            <button style="width: 150px;" class="btn btn-outline-primary btn-sm me-2 mb-2 fixed-width-btn" onclick="viewFixtures({{ match_week.id }})">
+                                View Fixtures
+                            </button>
+                            {% if now > match_week.predictions_close_time %}
+                                <a style="width: 150px;" href="{{ url_for('main.admin_predict_user', match_week_id=match_week.id) }}" class="btn btn-sm btn-outline-primary me-2 mb-2 align-items-end fixed-width-btn">
+                                    <i class="fas fa-plus"></i>Predict via Proxy
+                                </a>
+                                <a style="width: 150px;" href="{{ url_for('main.export_predictions', match_week_id=match_week.id) }}" class="btn btn-sm btn-primary text-white me-2 mb-2 fixed-width-btn">
+                                    <i class="fas fa-file-export"></i> Export Predictions
+                                </a>
+                            {% endif %}
+                            {% if match_week.close_time and now > match_week.close_time %}
+                                <a style="width: 150px;" href="{{ url_for('main.generate_matchweek_points', match_week_id=match_week.id) }}" onclick="return confirm('Are you sure you want to CALCULATE Game Week points?');" class="btn btn-sm btn-success text-white me-2 mb-2 fixed-width-btn">
+                                    <i class="fas fa-grip-lines"></i> Calculate Points
+                                </a>
+                            {% else %}
+                            <a style="width: 150px;" href="{{ url_for('main.generate_matchweek_points', match_week_id=match_week.id) }}" onclick="return confirm('Are you sure you want to CALCULATE Game Week points?');" class="btn btn-sm btn-success text-white me-2 mb-2 fixed-width-btn">
+                                <i class="fas fa-grip-lines"></i> Calculate Points
+                            </a>
+                            {% endif %}
+                        </div>
+
+                    </div>
+                    
+                    <!-- Fixtures details (collapsible) -->
+                    <div class="collapse" id="fixtures-{{ match_week.id }}">
+                        <hr>
+                        <div class="row">
+                            {% for fixture in match_week.fixtures %}
+                            <div class="col-md-6 mb-2">
+                                <div class="small">
+                                    <strong>{{ fixture.home_team.name if fixture.home_team else 'Unknown' }}</strong> vs <strong>{{ fixture.away_team.name if fixture.away_team else 'Unknown' }}</strong><br>
+                                    <span class="text-muted">{{ fixture.match_week.predictions_open_time }}</span>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        {% else %}
+        <div class="alert alert-info">
+            <i class="fas fa-info-circle"></i> No match weeks created yet. Create your first match week to get started!
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<div class="my-5 border-sm">
+    <div class="row">
+        <div class="col-12">
+            <h2><i class="fas fa-database"></i> Database Tables Overview</h2>
+            <p class="text-muted">Manage your database tables</p>
+        </div>
+    </div>
+    
+    
+    <div style="border: 1px solid rgb(236, 227, 227);" class="accordion accordion-flush" id="accordionFlushExample">
+        <div class="accordion-item">
+          <h2 class="accordion-header">
+            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#flush-collapseOne" aria-expanded="false" aria-controls="flush-collapseOne">
+              <p style="font-size: 1.2rem;">Users</p>
+            </button>
+          </h2>
+          <div id="flush-collapseOne" class="accordion-collapse collapse" data-bs-parent="#accordionFlushExample">
+            <div class="accordion-body">
+                <table class="table table-striped">
+                    <thead>
+                      <tr>
+                        <th scope="col">#</th>
+                        <th scope="col">Name</th>
+                        <th scope="col">Nickname</th>
+                        <th scope="col">Points</th>
+                        <th scope="col">Modify</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                        {% for user in users %}
+                        <tr>
+                            <th scope="row">{{ loop.index }}</th>
+                            <td>{{ user.name }}</td>
+                            <td>{{ user.nickname }}</td>
+                            <td>{{ user.total_points }}</td>
+                            <td>
+                                {% if user.is_admin %}
+                                <a class="btn btn-sm btn-success" href="{{ url_for('main.toggle_admin', user_id=user.id) }}" onclick="return confirm('Are you sure you want to change ADMIN status?');">
+                                    <i class="fas fa-user-shield"></i> Admin
+                                </a>
+                                {% else %}
+                                <a class="btn btn-sm btn-outline-secondary" href="{{ url_for('main.toggle_admin', user_id=user.id) }}" onclick="return confirm('Are you sure you want to change ADMIN status?');">
+                                    <i class="fas fa-user"></i> Make Admin
+                                </a>
+                                {% endif %}
+                                <a class="btn btn-sm btn-outline-warning" href="{{url_for('main.edit_user', user_id=user.id)}}" onclick="return confirm('Are you sure you want to EDIT this user?');">Edit</a>
+                                <a class="btn btn-sm btn-outline-danger" href="{{url_for('main.delete_user', user_id=user.id)}}"  onclick="return confirm('Are you sure you want to DELETE this user record?');">Delete</a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+          </div>
+        </div>
+
+        <div class="accordion-item">
+            <h2 class="accordion-header">
+              <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#flush-collapseTwo" aria-expanded="false" aria-controls="flush-collapseTwo">
+                <p style="font-size: 1.2rem;">Seasons</p>
+              </button>
+            </h2>
+            <div id="flush-collapseTwo" class="accordion-collapse collapse" data-bs-parent="#accordionFlushExample">
+              <div class="accordion-body">
+                  <table class="table table-striped">
+                      <thead>
+                        <tr>
+                          <th scope="col">#</th>
+                          <th scope="col">Start Year</th>
+                          <th scope="col">End Year</th>
+                          <th scope="col">Modify</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                          {% for season in seasons %}
+                          <tr>
+                              <th scope="row">{{ loop.index }}</th>
+                              <td>{{ season.season_start_year }}</td>
+                              <td>{{ season.season_end_year }}</td>
+                              <td>
+                                  <a class="btn btn-sm btn-outline-warning" href="http://">Edit</a>
+                                  <a class="btn btn-sm btn-outline-danger" href="http://">Delete</a>
+                              </td>
+                          </tr>
+                          {% endfor %}
+                      </tbody>
+                  </table>
+              </div>
+            </div>
+        </div>
+
+        <div class="accordion-item">
+          <h2 class="accordion-header">
+            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#flush-collapseThree" aria-expanded="false" aria-controls="flush-collapseThree">
+              <p style="font-size: 1.2rem;">Match Weeks</p> 
+            </button>
+          </h2>
+          <div id="flush-collapseThree" class="accordion-collapse collapse" data-bs-parent="#accordionFlushExample">
+            <div class="accordion-body">
+                <table class="table table-striped">
+                    <thead>
+                      <tr>
+                        <th scope="col">#</th>
+                        <th scope="col">Season</th>
+                        <th scope="col">Match Week</th>
+                        <th scope="col">Open</th>
+                        <th scope="col">Close</th>
+                        <th scope="col">Modify</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                        {% for match_week in match_weeks %}
+                        <tr>
+                            <th scope="row">{{ loop.index }}</th>
+                            <td>{{ match_week.season.season_start_year }}/{{ match_week.season.season_end_year }} Season</td>
+                            <td>Week {{ match_week.week.week_number }}</td>
+                            <td>{{ match_week.predictions_open_time }}</td>
+                            <td>{{ match_week.predictions_close_time }}</td>
+                            <td>
+                                <a class="btn btn-sm btn-outline-primary" href="{{ url_for('main.print_fixtures', match_week_id=match_week.id) }}">Print Fixtures</a>
+                                <a class="btn btn-sm btn-outline-warning" href="{{ url_for('main.edit_match_week', match_week_id=match_week.id) }}" onclick="return confirm('Are you sure you want to EDIT this match week?');">Edit</a>
+                                <a class="btn btn-sm btn-outline-danger" href="{{ url_for('main.delete_match_week', match_week_id=match_week.id) }}" onclick="return confirm('Are you sure you want to DELETE this match week?');">Delete</a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+          </div>
+        </div>
+
+        <div class="accordion-item">
+            <h2 class="accordion-header">
+              <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#flush-collapseFour" aria-expanded="false" aria-controls="flush-collapseFour">
+                <p style="font-size: 1.2rem;">Teams</p>
+              </button>
+            </h2>
+            <div id="flush-collapseFour" class="accordion-collapse collapse" data-bs-parent="#accordionFlushExample">
+              <div class="accordion-body">
+                <table class="table table-striped">
+                    <thead>
+                      <tr>
+                        <th scope="col">#</th>
+                        <th scope="col">Name</th>
+                        <th scope="col">Short Name</th>
+                        <th scope="col">Modify</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                        {% for team in teams %}
+                        <tr>
+                            <th scope="row">{{ loop.index }}</th>
+                            <td>{{ team.name }}</td>
+                            <td>{{ team.short_name }}</td>
+                            <td>
+                                <a class="btn btn-sm btn-outline-warning" href="{{ url_for('main.edit_team', team_id=team.id)}}" onclick="return confirm('Are you sure you want to EDIT this team?');">Edit</a>
+                                <a class="btn btn-sm btn-outline-danger" href="http://">Delete</a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+              </div>
+            </div>
+        </div>
+
+        <div class="accordion-item">
+            <h2 class="accordion-header">
+              <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#flush-collapseFive" aria-expanded="false" aria-controls="flush-collapseFive">
+                Fixtures
+              </button>
+            </h2>
+            <div id="flush-collapseFive" class="accordion-collapse collapse" data-bs-parent="#accordionFlushExample">
+              <div class="accordion-body">
+                <table class="table table-striped">
+                    <thead>
+                      <tr>
+                        <th scope="col">#</th>
+                        <th scope="col">Home Team</th>
+                        <th scope="col">Home Score</th>
+                        <th scope="col">Away Score</th>
+                        <th scope="col">Away Team</th>
+                        <th scope="col">Modify</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                        {% for fixture in fixtures|reverse %}
+                        <tr>
+                            <th scope="row">{{ loop.index }}</th>
+                            <td>{{ fixture.home_team.name }}</td>
+                            <td>{{ fixture.home_score }}</td>
+                            
+                            <td>{{ fixture.away_score }}</td>
+                            <td>{{ fixture.away_team.name }}</td>
+                            <td>
+                                <a class="btn btn-sm btn-outline-warning" href="{{url_for('main.update_single_fixture', fixture_id=fixture.id)}}"  onclick="return confirm('Are you sure you want to edit this fixture?');">Edit</a>
+                                {% if now > fixture.match_week.predictions_close_time %}
+                                <a class="btn btn-sm btn-outline-primary" href="{{url_for('main.update_single_fixture_score', fixture_id=fixture.id)}}"  onclick="return confirm('Are you sure you want to the scores?');">Update Scores</a>
+                                {% endif %}
+                                <a class="btn btn-sm btn-outline-danger" href="#">Delete</a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+              </div>
+            </div>
+        </div>
+
+        <!--div class="accordion-item">
+            <h2 class="accordion-header">
+              <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#flush-collapseSix" aria-expanded="false" aria-controls="flush-collapseSix">
+                Accordion Item #3
+              </button>
+            </h2>
+            <div id="flush-collapseSix" class="accordion-collapse collapse" data-bs-parent="#accordionFlushExample">
+              <div class="accordion-body">Placeholder content for this accordion, which is intended to demonstrate the <code>.accordion-flush</code> class. This is the third item’s accordion body. Nothing more exciting happening here in terms of content, but just filling up the space to make it look, at least at first glance, a bit more representative of how this would look in a real-world application.</div>
+            </div>
+        </div-->
+
+      </div>
+
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+function viewFixtures(weekId) {
+    const element = document.getElementById(`fixtures-${weekId}`);
+    const collapse = new bootstrap.Collapse(element);
+    collapse.toggle();
+}
+
+function importFixtures() {
+    if (confirm('Import fixtures from Sky Sports? This may take a moment.')) {
+        fetch('/admin/import_fixtures', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert(`Successfully imported ${data.count} fixtures!`);
+                location.reload();
+            } else {
+                alert('Error importing fixtures: ' + (data.error || 'Unknown error'));
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Error importing fixtures');
+        });
+    }
+}
+
+
+document.addEventListener('DOMContentLoaded', function() {
+    setTimeout(function() {
+        document.querySelectorAll('.alert').forEach(function(alertElement) {
+            if (alertElement.classList.contains('show')) {
+                const alertInstance = bootstrap.Alert.getOrCreateInstance(alertElement);
+                alertInstance.close();
+            }
+        });
+    }, 5000); // 5 seconds
+});
+ 
+</script>
+{% endblock %}
